@@ -8,17 +8,9 @@ is a small distributed task queue that supports multiple task queue (called
 Why a reimplementation?
 -----------------------
 Don't get me wrong - beanstalkd is amazing, fast and stable! This is somewhat
-of a hobby project where I implement beanstalkd in Go, but long-term project
-might also allow some neat stuff that beanstalkd doesn't want. Things I'm
-thinking of:
-
- * SSL.
- * Password protection.
- * Disk-offloading of larger jobs.
- * Compressed WAL.
- * Compressed job bodies.
- * High-availability using something like RAFT.
- * Burying jobs to disk to offload memory.
+of a hobby project where I implement beanstalkd in Go, but long-term this
+project might also allow [some neat stuff that beanstalkd doesn't
+want](https://github.com/JensRantil/geanstalkd/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement).
 
 What differs from beanstalkd?
 -----------------------------
