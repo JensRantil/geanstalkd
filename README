@@ -20,6 +20,7 @@ thinking of:
  * Compressed WAL.
  * Compressed job bodies.
  * High-availability using something like RAFT.
+ * Burying jobs to disk to offload memory.
 
 What differs from beanstalkd?
 -----------------------------
