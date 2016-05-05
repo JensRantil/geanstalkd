@@ -18,4 +18,6 @@ thinking of:
  * Password protection.
  * Disk-offloading of larger jobs.
  * Compressed WAL.
+ * Compressed job bodies.
+ * High-availability using something like RAFT.
 
