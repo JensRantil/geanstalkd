@@ -63,14 +63,14 @@ func (tl tcpListener) Serve(ctx context.Context, listenAddr string) {
 type connectionHandler struct {
 	Server server
 
-	Ctx    context.Context
-	Cancel context.CancelFunc
+	Ctx             context.Context
+	CloseConnection context.CancelFunc
 
 	Conn *textproto.Conn
 }
 
 func (ch connectionHandler) Handle() {
-	defer ch.Cancel()
+	defer ch.CloseConnection()
 
 	go func() {
 		<-ch.Ctx.Done()
@@ -143,7 +143,7 @@ func (ch connectionHandler) handleSingleRequest() {
 func quitHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 	ch.Conn.Pipeline.EndRequest(pipelineId)
 	ch.Conn.Pipeline.StartResponse(pipelineId)
-	ch.Cancel()
+	ch.CloseConnection()
 }
 
 func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
