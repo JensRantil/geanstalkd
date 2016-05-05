@@ -11,6 +11,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+const maxLineLength = 1024
+
 type tcpListener struct {
 	server server
 }
@@ -108,7 +110,10 @@ func (ch connectionHandler) handleSingleRequest() {
 
 	go func() {
 		var commandLine string
-		if commandLine, err = ch.Conn.Reader.ReadLine(); err != nil {
+		if commandLine, err = readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil {
+			if err == lineTooLong {
+				ch.CloseConnection()
+			}
 
 			// Must be called to avoid deadlock in handleSingleRequest() when it calls ch.Conn.Pipeline.StartRequest(...)
 			ch.Conn.Pipeline.EndRequest(id)
