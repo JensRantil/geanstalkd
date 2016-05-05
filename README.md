@@ -1,11 +1,9 @@
 geanstalkd
 ==========
 
-A beanstalkd[1] clone written in Go. beanstalkd is a small distributed task
-queue that supports multiple task queue (called "tubes"), task priority and
-task delay.
-
-[1] http://kr.github.io/beanstalkd/
+A [beanstalkd](http://kr.github.io/beanstalkd/) clone written in Go. beanstalkd
+is a small distributed task queue that supports multiple task queue (called
+"tubes"), task priority and task delay.
 
 Why a reimplementation?
 -----------------------
@@ -24,4 +22,5 @@ thinking of:
 
 What differs from beanstalkd?
 -----------------------------
+ * A single client can reserve multiple jobs.
  * Uses multiple cores.
