@@ -21,3 +21,6 @@ thinking of:
  * Compressed job bodies.
  * High-availability using something like RAFT.
 
+What differs from beanstalkd?
+-----------------------------
+ * Uses multiple cores.
