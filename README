@@ -1,0 +1,21 @@
+geanstalkd
+==========
+
+A beanstalkd[1] clone written in Go. beanstalkd is a small distributed task
+queue that supports multiple task queue (called "tubes"), task priority and
+task delay.
+
+[1] http://kr.github.io/beanstalkd/
+
+Why a reimplementation?
+-----------------------
+Don't get me wrong - beanstalkd is amazing, fast and stable! This is somewhat
+of a hobby project where I implement beanstalkd in Go, but long-term project
+might also allow some neat stuff that beanstalkd doesn't want. Things I'm
+thinking of:
+
+ * SSL.
+ * Password protection.
+ * Disk-offloading of larger jobs.
+ * Compressed WAL.
+
