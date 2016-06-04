@@ -141,6 +141,8 @@ func (ch connectionHandler) handleSingleRequest() {
 				handler = quitHandler
 			case "put":
 				handler = putHandler
+			case "delete":
+				handler = deleteHandler
 			}
 		}
 
@@ -233,6 +235,37 @@ func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 
 	ch.Conn.Pipeline.StartResponse(pipelineId)
 	ch.Conn.Writer.PrintfLine("INSERTED %d", job.Id)
+}
+
+func deleteHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
+	if len(cmdArgs) != 1 {
+		ch.Conn.Pipeline.EndRequest(pipelineId)
+		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
+		return
+	}
+
+	p := new(integerParser)
+	id := p.Parse(cmdArgs[0])
+	if p.Err != nil {
+		ch.Conn.Pipeline.EndRequest(pipelineId)
+		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
+		return
+	}
+
+	ch.Conn.Pipeline.EndRequest(pipelineId)
+
+	err := ch.Server.Delete(jobId(id))
+
+	ch.Conn.Pipeline.StartResponse(pipelineId)
+
+	if err != nil {
+		ch.Conn.Writer.PrintfLine("NOT_FOUND")
+		return
+	}
+
+	ch.Conn.Writer.PrintfLine("DELETED")
 }
 
 func unknownCommandHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {

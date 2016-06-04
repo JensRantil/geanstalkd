@@ -85,3 +85,19 @@ func (s *server) Add(j job) error {
 
 	return nil
 }
+
+func (s *server) Delete(id jobId) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	// TODO: Avoid unnecessary allocation here. Probably using an interface.
+	j := job{Id: id}
+
+	item := s.jobById.Delete(jobIdJobBTreeItem(j))
+	if item == nil {
+		return errNotFound
+	}
+	heap.Remove(s.jobHeap, j.Index)
+
+	return nil
+}
