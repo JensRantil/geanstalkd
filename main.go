@@ -17,19 +17,39 @@ const (
 	CONN_TYPE = "tcp"
 )
 
-func main() {
-	srv := server{}
-	tcpListener := tcpListener{srv}
-
-	ctx, cancel := context.WithCancel(context.Background())
-
+func cancelOnInterrupt(ctx context.Context, cancel func()) {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	go func() {
 		<-ch
 		cancel()
 	}()
+}
+
+func generateIds(ctx context.Context) <-chan jobId {
+	ids := make(chan jobId, 100)
+	go func() {
+		nextId := jobId(1)
+		for {
+			select {
+			case ids <- nextId:
+				nextId++
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return ids
+}
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancelOnInterrupt(ctx, cancel)
+
+	ids := generateIds(ctx)
+	srv := newServer(ids)
+	tcpListener := tcpListener{srv}
 
 	tcpListener.Serve(ctx, CONN_HOST+":"+CONN_PORT)
-
 }
