@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/context"
+	//"golang.org/x/net/context"
 )
 
 var drainingError = errors.New("Draining.")
