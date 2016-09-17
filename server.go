@@ -3,39 +3,18 @@ package main
 import (
 	"container/heap"
 	"errors"
-	"github.com/google/btree"
 	"sync"
 	"time"
 
+	"github.com/google/btree"
 	//"golang.org/x/net/context"
 )
 
 var drainingError = errors.New("Draining.")
 
-type counter uint
-type jobId uint64
-type priority uint64
-
 var errNotFound = errors.New("Not found")
 
 const DEFAULT_BTREE_DEGREE = 16
-
-type job struct {
-	Id         jobId
-	RunnableAt time.Time
-	TimeToRun  time.Duration
-	Body       []byte
-	Priority   priority
-
-	// Index in the job heap.
-	// TODO: Rename to better naming.
-	Index int
-}
-
-// TODO: Support multiple tubes.
-//type tube struct {
-//	// TODO: Add stats
-//}
 
 type server struct {
 	jobById *btree.BTree

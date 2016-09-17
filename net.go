@@ -79,12 +79,17 @@ type connectionHandler struct {
 func (ch connectionHandler) Handle() {
 	defer ch.CloseConnection()
 
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
 		<-ch.Ctx.Done()
 
 		// This means things will fail inside handleSingleRequest() immediately.
 		ch.Conn.Close()
+
+		wg.Done()
 	}()
+	defer wg.Wait()
 
 	for {
 		ch.handleSingleRequest()
@@ -113,20 +118,18 @@ func (ch connectionHandler) handleSingleRequest() {
 	id := ch.Conn.Pipeline.Next()
 	ch.Conn.Pipeline.StartRequest(id)
 
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	var commandLine string
+	if commandLine, err = readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil {
+		ch.CloseConnection()
+		return
+	}
+
+	wg.Add(1)
 	go func() {
-		var commandLine string
-		if commandLine, err = readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil {
-			if err == lineTooLong {
-				ch.CloseConnection()
-			}
-
-			// Must be called to avoid deadlock in handleSingleRequest() when it calls ch.Conn.Pipeline.StartRequest(...)
-			ch.Conn.Pipeline.EndRequest(id)
-			ch.Conn.Pipeline.StartResponse(id)
-			ch.Conn.Pipeline.EndResponse(id)
-
-			return
-		}
+		defer wg.Done()
 
 		cmdAndArgs := strings.Split(commandLine, " ")
 
