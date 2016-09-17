@@ -1,3 +1,7 @@
 language: go
 
+before_script:
+  - go vet ./...
+  - ./check_gofmt.sh
+
 script: go test -v -race ./...
