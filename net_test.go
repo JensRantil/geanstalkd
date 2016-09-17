@@ -76,3 +76,7 @@ func TestPut(t *T) {
 func TestUnknownCommand(t *T) {
 	testInput("this is a test\r\n").ExpectingOutput(t, "UNKNOWN_COMMAND\r\n")
 }
+
+func TestQuitCommand(t *T) {
+	testInput("quit\r\n").ExpectingOutput(t, "")
+}
