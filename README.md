@@ -1,6 +1,7 @@
 geanstalkd
 ==========
 [![Build Status](https://secure.travis-ci.org/JensRantil/geanstalkd.png?branch=master)](http://travis-ci.org/JensRantil/geanstalkd)
+[![Go Report Card](https://goreportcard.com/badge/github.com/JensRantil/geanstalkd)](https://goreportcard.com/report/github.com/JensRantil/geanstalkd)
 
 A [beanstalkd](http://kr.github.io/beanstalkd/) clone written in Go. beanstalkd
 is a small distributed task queue that supports multiple task queue (called
