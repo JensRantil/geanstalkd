@@ -134,7 +134,7 @@ func (ch connectionHandler) handleSingleRequest() {
 		cmdAndArgs := strings.Split(commandLine, " ")
 
 		handler := unknownCommandHandler
-		cmdArgs := make([]string, 0)
+		var cmdArgs []string
 
 		if len(cmdAndArgs) != 0 {
 			cmd := cmdAndArgs[0]
