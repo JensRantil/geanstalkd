@@ -10,7 +10,7 @@ import (
 	//"golang.org/x/net/context"
 )
 
-var drainingError = errors.New("Draining.")
+var errDraining = errors.New("Draining.")
 
 var errNotFound = errors.New("Not found")
 

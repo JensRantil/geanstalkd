@@ -16,8 +16,8 @@ func TestReadingTooLongCappedLine(t *T) {
 	reader := bufio.NewReader(&b)
 	_, err := readCappedLine(reader, 1024)
 
-	if err != lineTooLong {
-		t.Error("Expected the function to return lineTooLong.")
+	if err != errLineTooLong {
+		t.Error("Expected the function to return errLineTooLong.")
 	}
 }
 

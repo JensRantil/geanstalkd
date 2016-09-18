@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-var lineTooLong = errors.New("Line was too long.")
+var errLineTooLong = errors.New("Line was too long.")
 
 func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
 	var line []byte
@@ -20,7 +20,7 @@ func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
 		}
 		line = append(line, l...)
 		if len(line) > maxBytes {
-			return string(line), lineTooLong
+			return string(line), errLineTooLong
 		}
 		if !more {
 			break

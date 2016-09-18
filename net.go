@@ -227,7 +227,7 @@ func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 		jobdata,
 	)
 	if err := ch.Server.Add(job); err != nil {
-		if err == drainingError {
+		if err == errDraining {
 			ch.Conn.Pipeline.EndRequest(pipelineID)
 			ch.Conn.Pipeline.StartResponse(pipelineID)
 			ch.Conn.Writer.PrintfLine("DRAINING")
