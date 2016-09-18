@@ -8,12 +8,17 @@ import (
 )
 
 const (
+	// ConnHost is the host that the socket will listen on when the server is started.
+	//
 	// TODO: Make this command line flag.
 	ConnHost = "localhost"
 
+	// ConnPort is the port that the socket will listen on when the server is started.
+	//
 	// TODO: Make this command line flag.
 	ConnPort = "11300"
 
+	// ConnType is the type of socket that will be used when the server is running.
 	ConnType = "tcp"
 )
 

@@ -14,6 +14,7 @@ var errDraining = errors.New("Draining.")
 
 var errNotFound = errors.New("Not found")
 
+// DefaultBTreeDegree is the maximum number of items a BTree node holds.
 const DefaultBTreeDegree = 16
 
 type server struct {
@@ -34,6 +35,7 @@ func newServer(ids <-chan (jobID)) *server {
 	}
 }
 
+// UndefinedIndex is the index that a Job has in its heap before actually having been put in a heap.
 const UndefinedIndex = -1
 
 func (s *server) BuildJob(pri priority, at time.Time, ttr time.Duration, jobdata []byte) job {
