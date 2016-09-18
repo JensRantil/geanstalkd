@@ -1,12 +1,12 @@
 language: go
 
 install:
-  - go get github.com/golang/lint
+  - go get -u github.com/golang/lint/golint
 
 before_script:
   - go vet ./...
   - ./check_gofmt.sh
-  - $HOME/gopath/bin/golint -set_exit_status ./...
+  - golint -set_exit_status ./...
 
 script: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
