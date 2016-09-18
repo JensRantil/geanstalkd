@@ -26,8 +26,6 @@ type server struct {
 	ids  <-chan (jobID)
 }
 
-const EXPECTED_NBR_OF_JOBS = 1
-
 func newServer(ids <-chan (jobID)) *server {
 	return &server{
 		jobByID: btree.New(DefaultBTreeDegree),
