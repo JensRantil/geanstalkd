@@ -9,12 +9,12 @@ import (
 
 const (
 	// TODO: Make this command line flag.
-	CONN_HOST = "localhost"
+	ConnHost = "localhost"
 
 	// TODO: Make this command line flag.
-	CONN_PORT = "11300"
+	ConnPort = "11300"
 
-	CONN_TYPE = "tcp"
+	ConnType = "tcp"
 )
 
 func cancelOnInterrupt(ctx context.Context, cancel func()) {
@@ -51,5 +51,5 @@ func main() {
 	srv := newServer(ids)
 	tcpListener := tcpListener{srv}
 
-	tcpListener.Serve(ctx, CONN_HOST+":"+CONN_PORT)
+	tcpListener.Serve(ctx, ConnHost+":"+ConnPort)
 }

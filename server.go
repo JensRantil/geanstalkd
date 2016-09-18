@@ -14,7 +14,7 @@ var errDraining = errors.New("Draining.")
 
 var errNotFound = errors.New("Not found")
 
-const DEFAULT_BTREE_DEGREE = 16
+const DefaultBTreeDegree = 16
 
 type server struct {
 	jobByID *btree.BTree
@@ -36,7 +36,7 @@ func newServer(ids <-chan (jobID)) *server {
 	}
 }
 
-const UNDEFINED_INDEX = -1
+const UndefinedIndex = -1
 
 func (s *server) BuildJob(pri priority, at time.Time, ttr time.Duration, jobdata []byte) job {
 	return job{
@@ -45,7 +45,7 @@ func (s *server) BuildJob(pri priority, at time.Time, ttr time.Duration, jobdata
 		TimeToRun:  ttr,
 		Body:       jobdata,
 		Priority:   pri,
-		Index:      UNDEFINED_INDEX,
+		Index:      UndefinedIndex,
 	}
 }
 

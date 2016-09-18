@@ -25,7 +25,7 @@ type tcpListener struct {
 func (tl *tcpListener) Serve(ctx context.Context, listenAddr string) {
 
 	// Listen for incoming connections.
-	l, err := net.Listen(CONN_TYPE, listenAddr)
+	l, err := net.Listen(ConnType, listenAddr)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
