@@ -26,14 +26,14 @@ func cancelOnInterrupt(ctx context.Context, cancel func()) {
 	}()
 }
 
-func generateIds(ctx context.Context) <-chan jobId {
-	ids := make(chan jobId, 100)
+func generateIds(ctx context.Context) <-chan jobID {
+	ids := make(chan jobID, 100)
 	go func() {
-		nextId := jobId(1)
+		nextID := jobID(1)
 		for {
 			select {
-			case ids <- nextId:
-				nextId++
+			case ids <- nextID:
+				nextID++
 			case <-ctx.Done():
 				return
 			}

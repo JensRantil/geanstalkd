@@ -13,7 +13,7 @@ func (pq runnableAtJobHeap) Less(i, j int) bool {
 	if left.Priority < right.Priority {
 		return true
 	}
-	if left.Id < right.Id {
+	if left.ID < right.ID {
 		return true
 	}
 
