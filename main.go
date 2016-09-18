@@ -8,13 +8,18 @@ import (
 )
 
 const (
+	// ConnHost is the host that the socket will listen on when the server is started.
+	//
 	// TODO: Make this command line flag.
-	CONN_HOST = "localhost"
+	ConnHost = "localhost"
 
+	// ConnPort is the port that the socket will listen on when the server is started.
+	//
 	// TODO: Make this command line flag.
-	CONN_PORT = "11300"
+	ConnPort = "11300"
 
-	CONN_TYPE = "tcp"
+	// ConnType is the type of socket that will be used when the server is running.
+	ConnType = "tcp"
 )
 
 func cancelOnInterrupt(ctx context.Context, cancel func()) {
@@ -26,14 +31,14 @@ func cancelOnInterrupt(ctx context.Context, cancel func()) {
 	}()
 }
 
-func generateIds(ctx context.Context) <-chan jobId {
-	ids := make(chan jobId, 100)
+func generateIds(ctx context.Context) <-chan jobID {
+	ids := make(chan jobID, 100)
 	go func() {
-		nextId := jobId(1)
+		nextID := jobID(1)
 		for {
 			select {
-			case ids <- nextId:
-				nextId++
+			case ids <- nextID:
+				nextID++
 			case <-ctx.Done():
 				return
 			}
@@ -51,5 +56,5 @@ func main() {
 	srv := newServer(ids)
 	tcpListener := tcpListener{srv}
 
-	tcpListener.Serve(ctx, CONN_HOST+":"+CONN_PORT)
+	tcpListener.Serve(ctx, ConnHost+":"+ConnPort)
 }

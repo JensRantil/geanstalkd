@@ -4,17 +4,17 @@ import (
 	"time"
 )
 
-type consumerGroupId string
+type consumerGroupID string
 
 type consumerGroup struct {
 	TubeHeap tubeHeap
 }
 
-type jobId uint64
+type jobID uint64
 type priority uint64
 
 type job struct {
-	Id         jobId
+	ID         jobID
 	RunnableAt time.Time
 	TimeToRun  time.Duration
 	Body       []byte

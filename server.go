@@ -10,42 +10,42 @@ import (
 	//"golang.org/x/net/context"
 )
 
-var drainingError = errors.New("Draining.")
+var errDraining = errors.New("Draining.")
 
 var errNotFound = errors.New("Not found")
 
-const DEFAULT_BTREE_DEGREE = 16
+// DefaultBTreeDegree is the maximum number of items a BTree node holds.
+const DefaultBTreeDegree = 16
 
 type server struct {
-	jobById *btree.BTree
+	jobByID *btree.BTree
 	jobHeap *runnableAtJobHeap
 	// TODO: Add stats
 
 	// TODO: Investigate if a sync.RWMutex will be useful.
 	lock sync.Mutex
-	ids  <-chan (jobId)
+	ids  <-chan (jobID)
 }
 
-const EXPECTED_NBR_OF_JOBS = 1
-
-func newServer(ids <-chan (jobId)) *server {
+func newServer(ids <-chan (jobID)) *server {
 	return &server{
-		jobById: btree.New(DEFAULT_BTREE_DEGREE),
+		jobByID: btree.New(DefaultBTreeDegree),
 		jobHeap: &runnableAtJobHeap{},
 		ids:     ids,
 	}
 }
 
-const UNDEFINED_INDEX = -1
+// UndefinedIndex is the index that a Job has in its heap before actually having been put in a heap.
+const UndefinedIndex = -1
 
 func (s *server) BuildJob(pri priority, at time.Time, ttr time.Duration, jobdata []byte) job {
 	return job{
-		Id:         <-s.ids,
+		ID:         <-s.ids,
 		RunnableAt: at,
 		TimeToRun:  ttr,
 		Body:       jobdata,
 		Priority:   pri,
-		Index:      UNDEFINED_INDEX,
+		Index:      UndefinedIndex,
 	}
 }
 
@@ -53,26 +53,26 @@ func (s *server) Add(j job) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if s.jobById.Has(jobIdJobBTreeItem(j)) {
+	if s.jobByID.Has(jobIDJobBTreeItem(j)) {
 		// Sanity check.
 		return errors.New("The job identifier already existed. This should never happen.")
 	}
 
-	s.jobById.ReplaceOrInsert(jobIdJobBTreeItem(j))
+	s.jobByID.ReplaceOrInsert(jobIDJobBTreeItem(j))
 
 	heap.Push(s.jobHeap, &j)
 
 	return nil
 }
 
-func (s *server) Delete(id jobId) error {
+func (s *server) Delete(id jobID) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
 	// TODO: Avoid unnecessary allocation here. Probably using an interface.
-	j := job{Id: id}
+	j := job{ID: id}
 
-	item := s.jobById.Delete(jobIdJobBTreeItem(j))
+	item := s.jobByID.Delete(jobIDJobBTreeItem(j))
 	if item == nil {
 		return errNotFound
 	}

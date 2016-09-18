@@ -24,7 +24,7 @@ func (pq tubeHeap) Less(i, j int) bool {
 	if leftFirstJob.Priority < rightFirstJob.Priority {
 		return true
 	}
-	if leftFirstJob.Id < rightFirstJob.Id {
+	if leftFirstJob.ID < rightFirstJob.ID {
 		return true
 	}
 

@@ -5,8 +5,8 @@ import (
 )
 
 // jobById btree interface
-type jobIdJobBTreeItem job
+type jobIDJobBTreeItem job
 
-func (a jobIdJobBTreeItem) Less(b btree.Item) bool {
-	return a.Id < b.(jobIdJobBTreeItem).Id
+func (a jobIDJobBTreeItem) Less(b btree.Item) bool {
+	return a.ID < b.(jobIDJobBTreeItem).ID
 }

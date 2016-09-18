@@ -25,7 +25,7 @@ type tcpListener struct {
 func (tl *tcpListener) Serve(ctx context.Context, listenAddr string) {
 
 	// Listen for incoming connections.
-	l, err := net.Listen(CONN_TYPE, listenAddr)
+	l, err := net.Listen(ConnType, listenAddr)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
@@ -106,8 +106,8 @@ func (ch connectionHandler) Handle() {
 type cmdArgs []string
 
 // Responsible for making optional additional reads, calling
-// ch.conn.Pipeline.EndRequest(pipelineId) and calling
-// ch.conn.Pipeline.BeginResponse(pipelineId). Logic executed before
+// ch.conn.Pipeline.EndRequest(pipelineID) and calling
+// ch.conn.Pipeline.BeginResponse(pipelineID). Logic executed before
 // BeginResponse will be executed in parallel. Logic executed after
 // BeginResponse will be executed serially (useful for statistics for example).
 type cmdHandler func(connectionHandler, uint, cmdArgs)
@@ -134,7 +134,7 @@ func (ch connectionHandler) handleSingleRequest() {
 		cmdAndArgs := strings.Split(commandLine, " ")
 
 		handler := unknownCommandHandler
-		cmdArgs := make([]string, 0)
+		var cmdArgs []string
 
 		if len(cmdAndArgs) != 0 {
 			cmd := cmdAndArgs[0]
@@ -155,9 +155,9 @@ func (ch connectionHandler) handleSingleRequest() {
 
 }
 
-func quitHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
-	ch.Conn.Pipeline.EndRequest(pipelineId)
-	ch.Conn.Pipeline.StartResponse(pipelineId)
+func quitHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
+	ch.Conn.Pipeline.EndRequest(pipelineID)
+	ch.Conn.Pipeline.StartResponse(pipelineID)
 	ch.CloseConnection()
 }
 
@@ -186,10 +186,10 @@ func fillBuffer(b []byte, source io.Reader) error {
 	return nil
 }
 
-func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
+func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	if len(cmdArgs) != 4 {
-		ch.Conn.Pipeline.EndRequest(pipelineId)
-		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
 		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
 		return
 	}
@@ -200,8 +200,8 @@ func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 	ttr := p.Parse(cmdArgs[2])
 	nbytes := p.Parse(cmdArgs[3])
 	if p.Err != nil {
-		ch.Conn.Pipeline.EndRequest(pipelineId)
-		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
 		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
 		return
 	}
@@ -212,13 +212,13 @@ func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 	fillBuffer(jobdata, ch.Conn.Reader.R)
 	if additionalData, err := readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil || len(additionalData) != 0 {
 		// There was more data than expected.
-		ch.Conn.Pipeline.EndRequest(pipelineId)
-		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
 		ch.Conn.Writer.PrintfLine("EXPECTED_CRLF")
 		return
 	}
 
-	ch.Conn.Pipeline.EndRequest(pipelineId)
+	ch.Conn.Pipeline.EndRequest(pipelineID)
 
 	job := ch.Server.BuildJob(
 		priority(pri),
@@ -227,23 +227,23 @@ func putHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 		jobdata,
 	)
 	if err := ch.Server.Add(job); err != nil {
-		if err == drainingError {
-			ch.Conn.Pipeline.EndRequest(pipelineId)
-			ch.Conn.Pipeline.StartResponse(pipelineId)
+		if err == errDraining {
+			ch.Conn.Pipeline.EndRequest(pipelineID)
+			ch.Conn.Pipeline.StartResponse(pipelineID)
 			ch.Conn.Writer.PrintfLine("DRAINING")
 			return
 		}
 		log.Fatalln(err)
 	}
 
-	ch.Conn.Pipeline.StartResponse(pipelineId)
-	ch.Conn.Writer.PrintfLine("INSERTED %d", job.Id)
+	ch.Conn.Pipeline.StartResponse(pipelineID)
+	ch.Conn.Writer.PrintfLine("INSERTED %d", job.ID)
 }
 
-func deleteHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
+func deleteHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	if len(cmdArgs) != 1 {
-		ch.Conn.Pipeline.EndRequest(pipelineId)
-		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
 		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
 		return
 	}
@@ -251,17 +251,17 @@ func deleteHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 	p := new(integerParser)
 	id := p.Parse(cmdArgs[0])
 	if p.Err != nil {
-		ch.Conn.Pipeline.EndRequest(pipelineId)
-		ch.Conn.Pipeline.StartResponse(pipelineId)
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
 		ch.Conn.Writer.PrintfLine("BAD_FORMAT")
 		return
 	}
 
-	ch.Conn.Pipeline.EndRequest(pipelineId)
+	ch.Conn.Pipeline.EndRequest(pipelineID)
 
-	err := ch.Server.Delete(jobId(id))
+	err := ch.Server.Delete(jobID(id))
 
-	ch.Conn.Pipeline.StartResponse(pipelineId)
+	ch.Conn.Pipeline.StartResponse(pipelineID)
 
 	if err != nil {
 		ch.Conn.Writer.PrintfLine("NOT_FOUND")
@@ -271,8 +271,8 @@ func deleteHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
 	ch.Conn.Writer.PrintfLine("DELETED")
 }
 
-func unknownCommandHandler(ch connectionHandler, pipelineId uint, cmdArgs cmdArgs) {
-	ch.Conn.Pipeline.EndRequest(pipelineId)
-	ch.Conn.Pipeline.StartResponse(pipelineId)
+func unknownCommandHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
+	ch.Conn.Pipeline.EndRequest(pipelineID)
+	ch.Conn.Pipeline.StartResponse(pipelineID)
 	ch.Conn.Writer.PrintfLine("UNKNOWN_COMMAND")
 }
