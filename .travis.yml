@@ -6,7 +6,7 @@ install:
 before_script:
   - go vet ./...
   - ./check_gofmt.sh
-  - golint -set_exit_status
+  - $GOPATH/bin/golint -set_exit_status
 
 script: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
