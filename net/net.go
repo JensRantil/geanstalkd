@@ -1,36 +1,30 @@
-package main
+// Implements all network communication.
+package net
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/textproto"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	// TODO: Use the package in the standard library.
 	"golang.org/x/net/context"
+
+	"github.com/JensRantil/geanstalkd"
 )
 
 // TODO: All caps.
 const maxLineLength = 1024
 
-type tcpListener struct {
-	server *server
+type Listener struct {
+	Server *geanstalkd.Server
 }
 
-func (tl *tcpListener) Serve(ctx context.Context, listenAddr string) {
-
-	// Listen for incoming connections.
-	l, err := net.Listen(ConnType, listenAddr)
-	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(1)
-	}
-
+func (tl *Listener) Serve(ctx context.Context, l net.Listener) {
 	var wg sync.WaitGroup
 	go func() {
 		for {
@@ -47,7 +41,7 @@ func (tl *tcpListener) Serve(ctx context.Context, listenAddr string) {
 
 				childCtx, cancel := context.WithCancel(ctx)
 				ch := connectionHandler{
-					tl.server,
+					tl.Server,
 					childCtx,
 					cancel,
 					textproto.NewConn(conn),
@@ -68,7 +62,7 @@ func (tl *tcpListener) Serve(ctx context.Context, listenAddr string) {
 }
 
 type connectionHandler struct {
-	Server *server
+	Server *geanstalkd.Server
 
 	Ctx             context.Context
 	CloseConnection context.CancelFunc
@@ -221,13 +215,13 @@ func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	ch.Conn.Pipeline.EndRequest(pipelineID)
 
 	job := ch.Server.BuildJob(
-		priority(pri),
+		geanstalkd.Priority(pri),
 		time.Now().Add(time.Duration(delay)*time.Second),
 		time.Duration(ttr)*time.Second,
 		jobdata,
 	)
-	if err := ch.Server.Add(job); err != nil {
-		if err == errDraining {
+	if err := ch.Server.Add(&job); err != nil {
+		if err == geanstalkd.ErrDraining {
 			ch.Conn.Pipeline.EndRequest(pipelineID)
 			ch.Conn.Pipeline.StartResponse(pipelineID)
 			ch.Conn.Writer.PrintfLine("DRAINING")
@@ -259,7 +253,7 @@ func deleteHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 
 	ch.Conn.Pipeline.EndRequest(pipelineID)
 
-	err := ch.Server.Delete(jobID(id))
+	err := ch.Server.Delete(geanstalkd.JobID(id))
 
 	ch.Conn.Pipeline.StartResponse(pipelineID)
 

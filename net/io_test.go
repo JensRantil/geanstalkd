@@ -1,4 +1,4 @@
-package main
+package net
 
 import (
 	"bufio"
@@ -21,7 +21,7 @@ func TestReadingTooLongCappedLine(t *T) {
 	}
 }
 
-func TestReadShotCappedLine(t *T) {
+func TestReadingShortCappedLine(t *T) {
 	t.Parallel()
 
 	var b bytes.Buffer
