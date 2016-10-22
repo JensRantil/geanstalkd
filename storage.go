@@ -17,7 +17,7 @@ type StorageService struct {
 	DelayQueue JobPriorityQueue
 }
 
-func (s *StorageService) Add(j *Job) error {
+func (s *StorageService) Add(j Job) error {
 	if err := s.Jobs.Insert(j); err != nil {
 		return err
 	}
@@ -30,12 +30,12 @@ func (s *StorageService) Add(j *Job) error {
 }
 
 // Should fail if job doesn't exist.
-func (s *StorageService) Update(j *Job) error {
+func (s *StorageService) Update(j Job) error {
 	if err := s.Jobs.Update(j); err != nil {
 		return err
 	}
-	s.ReadyQueue.Fix(j)
-	s.DelayQueue.Fix(j)
+	s.ReadyQueue.Update(j)
+	s.DelayQueue.Update(j)
 	return nil
 }
 
@@ -53,7 +53,7 @@ func (s *StorageService) Read(id JobID) (*Job, error) {
 }
 
 // Return the next ready job. Returns `ErrNoJobReady` if there are no jobs ready.
-func (s *StorageService) PeekNextDelayed(j *Job) (*Job, error) {
+func (s *StorageService) PeekNextDelayed() (*Job, error) {
 	item := s.DelayQueue.Peek()
 	if item == nil {
 		return nil, ErrNoJobDelayed

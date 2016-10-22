@@ -20,7 +20,7 @@ func NewLockService(storage *StorageService) *LockService {
 	return ls
 }
 
-func (ls *LockService) Add(j *Job) error {
+func (ls *LockService) Add(j Job) error {
 	ls.lock.Lock()
 	defer ls.lock.Unlock()
 

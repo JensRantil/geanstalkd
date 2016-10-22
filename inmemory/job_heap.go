@@ -8,7 +8,7 @@ import (
 
 // Implementation of the container/heap.Interface. Supports zero value initialization.
 type jobHeapInterface struct {
-	jobs         []*geanstalkd.Job
+	jobs         []geanstalkd.Job
 	indexByJobId map[geanstalkd.JobID]int
 }
 
@@ -52,7 +52,7 @@ func (pq *jobHeapInterface) Swap(i, j int) {
 
 func (pq *jobHeapInterface) Push(x interface{}) {
 	n := len(pq.jobs)
-	item := x.(*geanstalkd.Job)
+	item := x.(geanstalkd.Job)
 	pq.indexByJobId[item.ID] = n
 	pq.jobs = append(pq.jobs, item)
 }
@@ -77,9 +77,13 @@ func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 	return (*JobHeapPriorityQueue)(&jobHeapInterface{})
 }
 
-func (h *JobHeapPriorityQueue) Fix(j *geanstalkd.Job) {
+func (h *JobHeapPriorityQueue) Update(j geanstalkd.Job) {
 	iface := (*jobHeapInterface)(h)
-	heap.Fix(iface, h.indexByJobId[j.ID])
+
+	index := h.indexByJobId[j.ID]
+	iface.jobs[index] = j
+
+	heap.Fix(iface, index)
 }
 func (h *JobHeapPriorityQueue) Pop() *geanstalkd.Job {
 	iface := (*jobHeapInterface)(h)
@@ -90,9 +94,10 @@ func (h *JobHeapPriorityQueue) Peek() *geanstalkd.Job {
 	if len(iface.jobs) == 0 {
 		return nil
 	}
-	return iface.jobs[0]
+	job := iface.jobs[0]
+	return &job
 }
-func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) {
+func (h *JobHeapPriorityQueue) Push(j geanstalkd.Job) {
 	iface := (*jobHeapInterface)(h)
 	heap.Push(iface, j)
 }

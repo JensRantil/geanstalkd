@@ -3,9 +3,9 @@ package geanstalkd
 type JobRegistry interface {
 	// Insert stores a new job in the registry. If a job with the same job
 	// identifier already exist, `ErrJobAlreadyExist` returned.
-	Insert(*Job) error
+	Insert(Job) error
 
-	Update(*Job) error
+	Update(Job) error
 
 	// GetByID returns the job with a given job identifier. If the job can't be
 	// found, it returns `ErrJobMissing`.
@@ -22,16 +22,9 @@ type JobRegistry interface {
 }
 
 type JobPriorityQueue interface {
-	Fix(*Job)
+	Update(Job)
 	Pop() *Job
 	Peek() *Job
-	Push(*Job)
+	Push(Job)
 	Remove(JobID)
-}
-
-type TubePriorityQueue interface {
-	Fix(*Tube)
-	Pop() *Tube
-	Push(*Tube)
-	Remove(*Tube)
 }

@@ -15,7 +15,6 @@ type Job struct {
 	Priority   Priority
 }
 
-type Tube struct {
-	Name      string
-	ReadyJobs TubePriorityQueue
+func (j Job) Copy() Job {
+	return j
 }
