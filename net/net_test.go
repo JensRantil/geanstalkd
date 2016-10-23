@@ -96,4 +96,5 @@ func TestUnknownCommand(t *T) {
 func TestQuitCommand(t *T) {
 	t.Parallel()
 	testInput("quit\r\n").ExpectingOutput(t, "")
+	testInput("quit\r\nthis is a test").ExpectingOutput(t, "")
 }
