@@ -2,6 +2,7 @@
 package net
 
 import (
+	"context"
 	"io"
 	"log"
 	"net"
@@ -10,9 +11,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	// TODO: Use the package in the standard library.
-	"golang.org/x/net/context"
 
 	"github.com/JensRantil/geanstalkd"
 )

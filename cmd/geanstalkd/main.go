@@ -1,11 +1,10 @@
 package main
 
 import (
+	"context"
 	gonet "net"
 	"os"
 	"os/signal"
-
-	"golang.org/x/net/context"
 
 	"github.com/JensRantil/geanstalkd"
 	"github.com/JensRantil/geanstalkd/inmemory"
@@ -34,23 +33,6 @@ func cancelOnInterrupt(ctx context.Context, cancel func()) {
 	}()
 }
 
-func generateIds(ctx context.Context) <-chan geanstalkd.JobID {
-	ids := make(chan geanstalkd.JobID, 100)
-	go func() {
-		nextID := geanstalkd.JobID(1)
-		for {
-			select {
-			case ids <- nextID:
-				nextID++
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	return ids
-}
-
 // DefaultBTreeDegree is the maximum number of items a BTree node holds.
 const DefaultBTreeDegree = 16
 
@@ -58,7 +40,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancelOnInterrupt(ctx, cancel)
 
-	ids := generateIds(ctx)
+	ids := geanstalkd.GenerateIds(ctx)
 	srv := &geanstalkd.Server{
 		Storage: geanstalkd.NewLockService(
 			&geanstalkd.StorageService{

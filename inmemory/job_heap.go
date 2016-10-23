@@ -74,7 +74,9 @@ func (pq *jobHeapInterface) Pop() interface{} {
 type JobHeapPriorityQueue jobHeapInterface
 
 func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
-	return (*JobHeapPriorityQueue)(&jobHeapInterface{})
+	return (*JobHeapPriorityQueue)(&jobHeapInterface{
+		indexByJobId: make(map[geanstalkd.JobID]int),
+	})
 }
 
 func (h *JobHeapPriorityQueue) Update(j geanstalkd.Job) {

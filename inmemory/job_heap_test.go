@@ -6,6 +6,7 @@ import (
 	"github.com/JensRantil/geanstalkd"
 )
 
-func TestJobHeapPriorityQueueImplementsJobPriorityQueue(t T) {
-	var _ geanstalkd.JobPriorityQueue = JobHeapPriorityQueue{nil}
+func TestJobHeapPriorityQueueImplementsJobPriorityQueue(t *T) {
+	t.Parallel()
+	var _ geanstalkd.JobPriorityQueue = (*JobHeapPriorityQueue)(nil)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/JensRantil/geanstalkd"
 )
 
-func TestInMemoryBTreeJobRegistryImplementsJobRegistry(t T) {
-	var _ geanstalkd.JobRegistry = InMemoryBTreeJobRegistry{nil}
+func TestInMemoryBTreeJobRegistryImplementsJobRegistry(t *T) {
+	t.Parallel()
+	var _ geanstalkd.JobRegistry = (*BTreeJobRegistry)(nil)
 }

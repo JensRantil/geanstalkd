@@ -2,9 +2,12 @@ package net
 
 import (
 	"bytes"
+	"context"
 	"net/textproto"
 
-	"golang.org/x/net/context"
+	"github.com/JensRantil/geanstalkd"
+	"github.com/JensRantil/geanstalkd/inmemory"
+	"github.com/google/btree"
 
 	. "testing"
 )
@@ -41,10 +44,21 @@ func testInput(input string) inputOutputTest {
 	return inputOutputTest{&m}
 }
 
+const DefaultBTreeDegree = 16
+
 func (iot inputOutputTest) ExpectingOutput(t *T, expected string) {
 	ctx, cancel := context.WithCancel(context.Background())
-	ids := generateIds(ctx)
-	srv := newServer(ids)
+	ids := geanstalkd.GenerateIds(ctx)
+	srv := &geanstalkd.Server{
+		Storage: geanstalkd.NewLockService(
+			&geanstalkd.StorageService{
+				(*inmemory.BTreeJobRegistry)(btree.New(DefaultBTreeDegree)),
+				inmemory.NewJobHeapPriorityQueue(),
+				inmemory.NewJobHeapPriorityQueue(),
+			},
+		),
+		Ids: ids,
+	}
 
 	ch := connectionHandler{
 		srv,
@@ -71,18 +85,15 @@ func (iot inputOutputTest) ExpectingOutput(t *T, expected string) {
 
 func TestPut(t *T) {
 	t.Parallel()
-
 	testInput("put 0 0 10 5\r\nhello\r\n").ExpectingOutput(t, "INSERTED 1\r\n")
 }
 
 func TestUnknownCommand(t *T) {
 	t.Parallel()
-
 	testInput("this is a test\r\n").ExpectingOutput(t, "UNKNOWN_COMMAND\r\n")
 }
 
 func TestQuitCommand(t *T) {
 	t.Parallel()
-
 	testInput("quit\r\n").ExpectingOutput(t, "")
 }
