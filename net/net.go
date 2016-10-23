@@ -166,19 +166,6 @@ func (i *integerParser) Parse(s string) uint64 {
 	return result
 }
 
-func fillBuffer(b []byte, source io.Reader) error {
-	from := 0
-	to := len(b)
-	for from < to {
-		nread, err := source.Read(b[from:to])
-		if err != nil {
-			return err
-		}
-		from += nread
-	}
-	return nil
-}
-
 func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	if len(cmdArgs) != 4 {
 		ch.Conn.Pipeline.EndRequest(pipelineID)
@@ -202,7 +189,7 @@ func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	// Read up job data
 
 	jobdata := make([]byte, nbytes)
-	fillBuffer(jobdata, ch.Conn.Reader.R)
+	io.ReadFull(ch.Conn.Reader.R, jobdata)
 	if additionalData, err := readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil || len(additionalData) != 0 {
 		// There was more data than expected.
 		ch.Conn.Pipeline.EndRequest(pipelineID)
