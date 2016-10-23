@@ -189,7 +189,12 @@ func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 	// Read up job data
 
 	jobdata := make([]byte, nbytes)
-	io.ReadFull(ch.Conn.Reader.R, jobdata)
+	if _, err := io.ReadFull(ch.Conn.Reader.R, jobdata); err != nil {
+		ch.Conn.Pipeline.EndRequest(pipelineID)
+		ch.Conn.Pipeline.StartResponse(pipelineID)
+		ch.CloseConnection()
+		return
+	}
 	if additionalData, err := readCappedLine(ch.Conn.Reader.R, maxLineLength); err != nil || len(additionalData) != 0 {
 		// There was more data than expected.
 		ch.Conn.Pipeline.EndRequest(pipelineID)
