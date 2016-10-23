@@ -125,10 +125,11 @@ func (ch connectionHandler) handleSingleRequest() {
 
 		cmdAndArgs := strings.Split(commandLine, " ")
 
-		handler := unknownCommandHandler
+		var handler cmdHandler
+		handler = unknownCommandHandler
 		var cmdArgs []string
 
-		if len(cmdAndArgs) != 0 {
+		if len(cmdAndArgs) > 0 {
 			cmd := cmdAndArgs[0]
 			cmdArgs = cmdAndArgs[1:]
 			switch cmd {
