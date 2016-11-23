@@ -12,6 +12,11 @@ import (
 	. "testing"
 )
 
+func TestJobIDIsIncreased(t *T) {
+	t.Parallel()
+	testInput("put 0 0 10 5\r\nhello\r\nput 0 0 10 5\r\nhello\r\n").ExpectingOutput(t, "INSERTED 1\r\nINSERTED 2\r\n")
+}
+
 func TestPut(t *T) {
 	t.Parallel()
 	testInput("put 0 0 10 5\r\nhello\r\n").ExpectingOutput(t, "INSERTED 1\r\n")
