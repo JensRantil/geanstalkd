@@ -22,6 +22,14 @@ func TestPut(t *T) {
 	testInput("put 0 0 10 5\r\nhello\r\n").ExpectingOutput(t, "INSERTED 1\r\n")
 }
 
+func TestPutWithBadFormat(t *T) {
+	t.Parallel()
+	testInput("put 0 0 10\r\n").ExpectingOutput(t, "BAD_FORMAT\r\n")
+	testInput("put 0 0\r\n").ExpectingOutput(t, "BAD_FORMAT\r\n")
+	testInput("put 0\r\n").ExpectingOutput(t, "BAD_FORMAT\r\n")
+	testInput("put\r\n").ExpectingOutput(t, "BAD_FORMAT\r\n")
+}
+
 func TestUnknownCommand(t *T) {
 	t.Parallel()
 	testInput("this is a test\r\n").ExpectingOutput(t, "UNKNOWN_COMMAND\r\n")
