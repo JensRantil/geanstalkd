@@ -23,9 +23,9 @@ type JobRegistry interface {
 }
 
 type JobPriorityQueue interface {
-	Update(Job)
+	Update(Job) error
 	Pop() *Job
 	Peek() *Job
 	Push(Job)
-	Remove(JobID)
+	Remove(JobID) error
 }

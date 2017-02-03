@@ -79,13 +79,18 @@ func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 	})
 }
 
-func (h *JobHeapPriorityQueue) Update(j geanstalkd.Job) {
+func (h *JobHeapPriorityQueue) Update(j geanstalkd.Job) error {
 	iface := (*jobHeapInterface)(h)
 
-	index := h.indexByJobId[j.ID]
-	iface.jobs[index] = j
+	index, ok := h.indexByJobId[j.ID]
+	if !ok {
+		return geanstalkd.ErrJobMissing
+	}
 
+	iface.jobs[index] = j
 	heap.Fix(iface, index)
+
+	return nil
 }
 func (h *JobHeapPriorityQueue) Pop() *geanstalkd.Job {
 	iface := (*jobHeapInterface)(h)
@@ -103,7 +108,15 @@ func (h *JobHeapPriorityQueue) Push(j geanstalkd.Job) {
 	iface := (*jobHeapInterface)(h)
 	heap.Push(iface, j)
 }
-func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) {
+func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
 	iface := (*jobHeapInterface)(h)
-	heap.Remove(iface, iface.indexByJobId[jid])
+
+	index, ok := iface.indexByJobId[jid]
+	if !ok {
+		return geanstalkd.ErrJobMissing
+	}
+
+	heap.Remove(iface, index)
+
+	return nil
 }
