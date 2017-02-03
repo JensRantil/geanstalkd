@@ -1,5 +1,6 @@
 package geanstalkd
 
+// A JobRegistry stores and queries jobs.
 type JobRegistry interface {
 	// Insert stores a new job in the registry. If a job with the same job
 	// identifier already exist, `ErrJobAlreadyExist` returned.
