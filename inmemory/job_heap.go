@@ -117,6 +117,7 @@ func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
 	}
 
 	heap.Remove(iface, index)
+	delete(iface.indexByJobId, jid)
 
 	return nil
 }
