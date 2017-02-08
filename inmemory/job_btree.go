@@ -7,10 +7,12 @@ import (
 )
 
 // jobById btree interface
-type jobIDJobBTreeItem geanstalkd.Job
+type jobIDJobBTreeItem struct {
+	item *geanstalkd.Job
+}
 
 func (a jobIDJobBTreeItem) Less(b btree.Item) bool {
-	return a.ID < b.(jobIDJobBTreeItem).ID
+	return a.item.ID < b.(jobIDJobBTreeItem).item.ID
 }
 
 // BtreeJobRegistry implements a JobRegistry backed by a BTree.
@@ -21,7 +23,7 @@ func registryToBTree(r *BTreeJobRegistry) *btree.BTree {
 }
 
 func (i *BTreeJobRegistry) Insert(j *geanstalkd.Job) error {
-	item := jobIDJobBTreeItem(*j)
+	item := jobIDJobBTreeItem{j}
 
 	if registryToBTree(i).Has(item) {
 		return geanstalkd.ErrJobAlreadyExist
@@ -32,7 +34,7 @@ func (i *BTreeJobRegistry) Insert(j *geanstalkd.Job) error {
 }
 
 func (i *BTreeJobRegistry) Update(j *geanstalkd.Job) error {
-	item := jobIDJobBTreeItem(*j)
+	item := jobIDJobBTreeItem{j}
 
 	if !registryToBTree(i).Has(item) {
 		return geanstalkd.ErrJobMissing
@@ -43,17 +45,11 @@ func (i *BTreeJobRegistry) Update(j *geanstalkd.Job) error {
 }
 
 func itemToJob(item btree.Item) *geanstalkd.Job {
-	var comparable *jobIDJobBTreeItem
-	comparable = item.(*jobIDJobBTreeItem)
-
-	var job *geanstalkd.Job
-	job = (*geanstalkd.Job)(comparable)
-
-	return job
+	return item.(jobIDJobBTreeItem).item
 }
 
 func (i *BTreeJobRegistry) GetByID(id geanstalkd.JobID) (*geanstalkd.Job, error) {
-	key := jobIDJobBTreeItem(geanstalkd.Job{ID: id})
+	key := jobIDJobBTreeItem{&geanstalkd.Job{ID: id}}
 	item := registryToBTree(i).Get(key)
 	if item == nil {
 		return nil, geanstalkd.ErrJobMissing
@@ -63,7 +59,7 @@ func (i *BTreeJobRegistry) GetByID(id geanstalkd.JobID) (*geanstalkd.Job, error)
 }
 
 func (i *BTreeJobRegistry) DeleteByID(id geanstalkd.JobID) error {
-	key := jobIDJobBTreeItem(geanstalkd.Job{ID: id})
+	key := jobIDJobBTreeItem{&geanstalkd.Job{ID: id}}
 	if item := registryToBTree(i).Delete(key); item == nil {
 		return geanstalkd.ErrJobMissing
 	}
