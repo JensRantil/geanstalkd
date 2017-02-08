@@ -20,8 +20,8 @@ func registryToBTree(r *BTreeJobRegistry) *btree.BTree {
 	return (*btree.BTree)(r)
 }
 
-func (i *BTreeJobRegistry) Insert(j geanstalkd.Job) error {
-	item := jobIDJobBTreeItem(j)
+func (i *BTreeJobRegistry) Insert(j *geanstalkd.Job) error {
+	item := jobIDJobBTreeItem(*j)
 
 	if registryToBTree(i).Has(item) {
 		return geanstalkd.ErrJobAlreadyExist
@@ -31,8 +31,8 @@ func (i *BTreeJobRegistry) Insert(j geanstalkd.Job) error {
 	return nil
 }
 
-func (i *BTreeJobRegistry) Update(j geanstalkd.Job) error {
-	item := jobIDJobBTreeItem(j)
+func (i *BTreeJobRegistry) Update(j *geanstalkd.Job) error {
+	item := jobIDJobBTreeItem(*j)
 
 	if !registryToBTree(i).Has(item) {
 		return geanstalkd.ErrJobMissing

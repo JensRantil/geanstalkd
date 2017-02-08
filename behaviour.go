@@ -4,11 +4,11 @@ package geanstalkd
 type JobRegistry interface {
 	// Insert stores a new job in the registry. If a job with the same job
 	// identifier already exist, `ErrJobAlreadyExist` returned.
-	Insert(Job) error
+	Insert(*Job) error
 
 	// Update the registry to reflect possible changes made to Job. Returns
 	// `ErrJobMissing` if the Job could not be found.
-	Update(Job) error
+	Update(*Job) error
 
 	// GetByID returns the job with a given job identifier. If the job can't be
 	// found, it returns `ErrJobMissing`.
@@ -31,22 +31,18 @@ type JobPriorityQueue interface {
 	// Notify the priority queue that the Job's priority might have changed and
 	// that internal datastructures must be updated to reflect that. Returns
 	// `ErrJobMissing` if the job was not in the queue.
-	Update(Job) error
+	Update(*Job) error
 
-	// Remove and return the Job with the highest priority. Returns nil if
-	// there is nothing to return.
-	//
-	// TODO: Check if Go best-practise is to return `nil` or `error` here.
-	Pop() *Job
+	// Remove and return the Job with the highest priority. Returns
+	// `ErrEmptyQueue` if there are no jobs in the queue.
+	Pop() (*Job, error)
 
 	// Return the highest priority Job. Return nil if there are no jobs in the
-	// queue.
-	//
-	// TODO: Check if Go best-practise is to return `nil` or `error` here.
-	Peek() *Job
+	// queue. Returns `ErrEmptyQueue` if there are no jobs in the queue.
+	Peek() (*Job, error)
 
 	// Put a new Job on the queue.
-	Push(Job)
+	Push(*Job)
 
 	// Remove a Job from the queue with a specific ID.  Returns `ErrJobMissing`
 	// if the job was not in the queue.

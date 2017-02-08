@@ -20,7 +20,7 @@ func NewLockService(storage *StorageService) *LockService {
 	return ls
 }
 
-func (ls *LockService) Add(j Job) error {
+func (ls *LockService) Add(j *Job) error {
 	ls.lock.Lock()
 	defer ls.lock.Unlock()
 
@@ -38,9 +38,11 @@ func (ls *LockService) Poll(ctx context.Context) (*Job, error) {
 
 	for {
 		job, err := ls.storage.PopNextReady()
-		if err != ErrNoJobReady {
+		if err == nil {
+			return job, nil
+		} else if err != ErrNoJobReady {
 			ls.lock.Unlock()
-			return job, err
+			return nil, err
 		}
 
 		ok := ls.cond.Wait(ctx)

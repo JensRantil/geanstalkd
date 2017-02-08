@@ -17,7 +17,7 @@ type StorageService struct {
 	DelayQueue JobPriorityQueue
 }
 
-func (s *StorageService) Add(j Job) error {
+func (s *StorageService) Add(j *Job) error {
 	if err := s.Jobs.Insert(j); err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func (s *StorageService) Add(j Job) error {
 }
 
 // Should fail if job doesn't exist.
-func (s *StorageService) Update(j Job) error {
+func (s *StorageService) Update(j *Job) error {
 	if err := s.Jobs.Update(j); err != nil {
 		return err
 	}
@@ -54,20 +54,20 @@ func (s *StorageService) Read(id JobID) (*Job, error) {
 
 // Return the next ready job. Returns `ErrNoJobReady` if there are no jobs ready.
 func (s *StorageService) PeekNextDelayed() (*Job, error) {
-	item := s.DelayQueue.Peek()
-	if item == nil {
+	item, err := s.DelayQueue.Peek()
+	if err == ErrEmptyQueue {
 		return nil, ErrNoJobDelayed
 	}
-	return item, nil
+	return item, err
 }
 
 // TODO: Add `tube` as parameter.
 func (s *StorageService) PopNextReady() (*Job, error) {
-	item := s.DelayQueue.Pop()
-	if item == nil {
-		return nil, ErrNoJobDelayed
+	item, err := s.DelayQueue.Pop()
+	if err == ErrEmptyQueue {
+		return item, ErrNoJobDelayed
 	}
-	return item, nil
+	return item, err
 }
 
 // TODO: Implement when adding tube support.

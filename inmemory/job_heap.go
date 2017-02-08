@@ -8,7 +8,7 @@ import (
 
 // Implementation of the container/heap.Interface. Supports zero value initialization.
 type jobHeapInterface struct {
-	jobs         []geanstalkd.Job
+	jobs         []*geanstalkd.Job
 	indexByJobId map[geanstalkd.JobID]int
 }
 
@@ -52,7 +52,7 @@ func (pq *jobHeapInterface) Swap(i, j int) {
 
 func (pq *jobHeapInterface) Push(x interface{}) {
 	n := len(pq.jobs)
-	item := x.(geanstalkd.Job)
+	item := x.(*geanstalkd.Job)
 	pq.indexByJobId[item.ID] = n
 	pq.jobs = append(pq.jobs, item)
 }
@@ -71,53 +71,55 @@ func (pq *jobHeapInterface) Pop() interface{} {
 
 // Bridge between geanstalkd.JobPriorityQueue and container/heap
 // implementation. Supports zero value initialization.
-type JobHeapPriorityQueue jobHeapInterface
-
-func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
-	return (*JobHeapPriorityQueue)(&jobHeapInterface{
-		indexByJobId: make(map[geanstalkd.JobID]int),
-	})
+type JobHeapPriorityQueue struct {
+	heap *jobHeapInterface
 }
 
-func (h *JobHeapPriorityQueue) Update(j geanstalkd.Job) error {
-	iface := (*jobHeapInterface)(h)
+func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
+	return &JobHeapPriorityQueue{
+		&jobHeapInterface{
+			indexByJobId: make(map[geanstalkd.JobID]int),
+		},
+	}
+}
 
-	index, ok := h.indexByJobId[j.ID]
+func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
+	index, ok := h.heap.indexByJobId[j.ID]
 	if !ok {
 		return geanstalkd.ErrJobMissing
 	}
 
-	iface.jobs[index] = j
-	heap.Fix(iface, index)
+	h.heap.jobs[index] = j
+	heap.Fix(h.heap, index)
 
 	return nil
 }
-func (h *JobHeapPriorityQueue) Pop() *geanstalkd.Job {
-	iface := (*jobHeapInterface)(h)
-	return heap.Pop(iface).(*geanstalkd.Job)
-}
-func (h *JobHeapPriorityQueue) Peek() *geanstalkd.Job {
-	iface := (*jobHeapInterface)(h)
-	if len(iface.jobs) == 0 {
-		return nil
+func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
+	var err error
+	item := heap.Pop(h.heap).(*geanstalkd.Job)
+	if item == nil {
+		err = geanstalkd.ErrEmptyQueue
 	}
-	job := iface.jobs[0]
-	return &job
+	return item, err
 }
-func (h *JobHeapPriorityQueue) Push(j geanstalkd.Job) {
-	iface := (*jobHeapInterface)(h)
-	heap.Push(iface, j)
+func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
+	if len(h.heap.jobs) == 0 {
+		return nil, geanstalkd.ErrEmptyQueue
+	}
+	job := h.heap.jobs[0]
+	return job, nil
+}
+func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) {
+	heap.Push(h.heap, j)
 }
 func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
-	iface := (*jobHeapInterface)(h)
-
-	index, ok := iface.indexByJobId[jid]
+	index, ok := h.heap.indexByJobId[jid]
 	if !ok {
 		return geanstalkd.ErrJobMissing
 	}
 
-	heap.Remove(iface, index)
-	delete(iface.indexByJobId, jid)
+	heap.Remove(h.heap, index)
+	delete(h.heap.indexByJobId, jid)
 
 	return nil
 }

@@ -31,7 +31,7 @@ func (s *Server) BuildJob(pri Priority, at time.Time, ttr time.Duration, jobdata
 	}
 }
 
-func (s *Server) Add(j Job) error {
+func (s *Server) Add(j *Job) error {
 	// TODO: Delegate to `DelayService` if job is delayed.
 	return s.Storage.Add(j)
 }

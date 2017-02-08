@@ -211,7 +211,7 @@ func putHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 		time.Duration(ttr)*time.Second,
 		jobdata,
 	)
-	if err := ch.Server.Add(job); err != nil {
+	if err := ch.Server.Add(&job); err != nil {
 		if err == geanstalkd.ErrDraining {
 			ch.Conn.Pipeline.EndRequest(pipelineID)
 			ch.Conn.Pipeline.StartResponse(pipelineID)
