@@ -3,10 +3,17 @@ package inmemory
 import (
 	. "testing"
 
-	"github.com/JensRantil/geanstalkd"
+	"github.com/google/btree"
+	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/JensRantil/geanstalkd/testing"
 )
 
-func TestInMemoryBTreeJobRegistryImplementsJobRegistry(t *T) {
+func TestBTreeJobRegistry(t *T) {
 	t.Parallel()
-	var _ geanstalkd.JobRegistry = (*BTreeJobRegistry)(nil)
+
+	Convey("Given a fresh BTreeJobRegistry", t, func() {
+		bt := (*BTreeJobRegistry)(btree.New(btree.DefaultFreeListSize))
+		testing.TestJobRegistry(bt)
+	})
 }

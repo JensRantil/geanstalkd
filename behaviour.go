@@ -41,10 +41,14 @@ type JobPriorityQueue interface {
 	// queue. Returns `ErrEmptyQueue` if there are no jobs in the queue.
 	Peek() (*Job, error)
 
-	// Put a new Job on the queue.
-	Push(*Job)
+	// Put a new Job on the queue. Returns `ErrJobAlreadyExist` if job already
+	// exists.
+	Push(*Job) error
 
 	// Remove a Job from the queue with a specific ID.  Returns `ErrJobMissing`
 	// if the job was not in the queue.
+	//
+	// TODO: Rename to `RemoveByID` to make this using same nomenclature as
+	// other functions.
 	Remove(JobID) error
 }

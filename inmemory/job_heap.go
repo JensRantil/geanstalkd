@@ -12,6 +12,11 @@ type jobHeapInterface struct {
 	indexByJobId map[geanstalkd.JobID]int
 }
 
+func (pq *jobHeapInterface) HasId(id geanstalkd.JobID) bool {
+	_, exists := pq.indexByJobId[id]
+	return exists
+}
+
 func (pq *jobHeapInterface) Len() int { return len(pq.jobs) }
 
 // Less compares two jobs in the heap slice first according to
@@ -24,8 +29,8 @@ func (pq *jobHeapInterface) Less(i, j int) bool {
 	right := pq.jobs[j]
 
 	if a, b := left.RunnableAt, right.RunnableAt; a != nil || b != nil {
-		if a != nil && b != nil && a.Before(*b) {
-			return true
+		if a != nil && b != nil {
+			return a.Before(*b)
 		} else if a != nil {
 			return true
 		} else /*if b != nil*/ {
@@ -76,11 +81,16 @@ type JobHeapPriorityQueue struct {
 }
 
 func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
-	return &JobHeapPriorityQueue{
+	r := &JobHeapPriorityQueue{
 		&jobHeapInterface{
 			indexByJobId: make(map[geanstalkd.JobID]int),
 		},
 	}
+
+	// Not sure this is needed for an empty heap. Doing it just in case.
+	heap.Init(r.heap)
+
+	return r
 }
 
 func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
@@ -95,12 +105,12 @@ func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
 	return nil
 }
 func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
-	var err error
-	item := heap.Pop(h.heap).(*geanstalkd.Job)
-	if item == nil {
-		err = geanstalkd.ErrEmptyQueue
+	if h.heap.Len() == 0 {
+		return nil, geanstalkd.ErrEmptyQueue
 	}
-	return item, err
+	job := heap.Pop(h.heap).(*geanstalkd.Job)
+	delete(h.heap.indexByJobId, job.ID)
+	return job, nil
 }
 func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
 	if len(h.heap.jobs) == 0 {
@@ -109,8 +119,12 @@ func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
 	job := h.heap.jobs[0]
 	return job, nil
 }
-func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) {
+func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
+	if h.heap.HasId(j.ID) {
+		return geanstalkd.ErrJobAlreadyExist
+	}
 	heap.Push(h.heap, j)
+	return nil
 }
 func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
 	index, ok := h.heap.indexByJobId[jid]
