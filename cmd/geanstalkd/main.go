@@ -44,14 +44,16 @@ func main() {
 	srv := &geanstalkd.Server{
 		Storage: geanstalkd.NewLockService(
 			&geanstalkd.StorageService{
-				(*inmemory.BTreeJobRegistry)(btree.New(DefaultBTreeDegree)),
-				inmemory.NewJobHeapPriorityQueue(),
-				inmemory.NewJobHeapPriorityQueue(),
+				Jobs:       (*inmemory.BTreeJobRegistry)(btree.New(DefaultBTreeDegree)),
+				ReadyQueue: inmemory.NewJobHeapPriorityQueue(),
+				DelayQueue: inmemory.NewJobHeapPriorityQueue(),
 			},
 		),
 		Ids: ids,
 	}
-	connListener := net.Listener{srv}
+	connListener := net.Listener{
+		Server: srv,
+	}
 
 	l, err := gonet.Listen("tcp", ConnHost+":"+ConnPort)
 	if err != nil {

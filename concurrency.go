@@ -75,12 +75,12 @@ func newChannelCond(l sync.Locker) *channelCond {
 
 type channelCondID int
 
-func (cc channelCond) register() channelCondID {
+func (cc *channelCond) register() channelCondID {
 	cc.channels = append(cc.channels, make(chan struct{}, 1))
 	return channelCondID(len(cc.channels) - 1)
 }
 
-func (cc channelCond) unregister(id channelCondID) {
+func (cc *channelCond) unregister(id channelCondID) {
 	c := cc.channels[id]
 	close(c)
 
@@ -90,7 +90,7 @@ func (cc channelCond) unregister(id channelCondID) {
 
 // Wait waits for a conditional or timeout to happen. If a conditional event is
 // triggered, it returns `true`. Otherwise it returns `false`.
-func (cc channelCond) Wait(ctx context.Context) bool {
+func (cc *channelCond) Wait(ctx context.Context) bool {
 	cc.lock.Lock()
 	id := cc.register()
 
@@ -123,7 +123,7 @@ func (cc channelCond) Wait(ctx context.Context) bool {
 // have the `default` case below, though.
 
 // Tell all waiting go routines that a conditional event happened.
-func (cc channelCond) Broadcast() {
+func (cc *channelCond) Broadcast() {
 	cc.lock.RLock()
 	for _, c := range cc.channels {
 		select {
