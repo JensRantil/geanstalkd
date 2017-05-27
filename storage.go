@@ -7,9 +7,9 @@ import (
 
 var (
 	// ErrNoJobReady is returned when there is no job ready.
-	ErrNoJobReady = errors.New("No job ready.")
+	ErrNoJobReady = errors.New("no job ready")
 	// ErrNoJobDelayed is returned when there is no delayed job ready.
-	ErrNoJobDelayed = errors.New("No delayed job ready.")
+	ErrNoJobDelayed = errors.New("no delayed job ready")
 )
 
 // StorageService stores jobs. All operations are atomic in terms of storage.

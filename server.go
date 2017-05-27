@@ -9,7 +9,7 @@ import (
 
 // Common `Server` errors.
 var (
-	ErrDraining = errors.New("Server is draining. No new jobs can be added.")
+	ErrDraining = errors.New("server is draining. No new jobs can be added")
 )
 
 // Server is the facade through which all interactions to geanstalk go from the

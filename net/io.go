@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-var errLineTooLong = errors.New("Line was too long.")
+var errLineTooLong = errors.New("line too long")
 
 func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
 	var line []byte
