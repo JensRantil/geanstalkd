@@ -22,6 +22,7 @@ const maxLineLength = 1024
 //
 // [1] https://raw.githubusercontent.com/kr/beanstalkd/master/doc/protocol.txt
 type Listener struct {
+	// TODO: Rename to something else. It doesn't just listen.
 	Server *geanstalkd.Server
 }
 
