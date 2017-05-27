@@ -2,29 +2,31 @@ package net
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 )
 
 var errLineTooLong = errors.New("line too long")
 
 func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
-	var line []byte
+	line := bytes.Buffer{}
+
+	var l []byte
+	var more bool
+	var err error
 	for {
-		l, more, err := r.ReadLine()
+		l, more, err = r.ReadLine()
 		if err != nil {
-			return "", err
+			break
 		}
-		// Avoid the copy if the first call produced a full line.
-		if line == nil && !more {
-			return string(l), nil
-		}
-		line = append(line, l...)
-		if len(line) > maxBytes {
-			return string(line), errLineTooLong
+		line.Write(l)
+		if line.Len() > maxBytes {
+			err = errLineTooLong
+			break
 		}
 		if !more {
 			break
 		}
 	}
-	return string(line), nil
+	return line.String(), nil
 }
