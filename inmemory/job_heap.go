@@ -74,8 +74,7 @@ func (pq *jobHeapInterface) Pop() interface{} {
 	return item
 }
 
-// Bridge between geanstalkd.JobPriorityQueue and container/heap
-// implementation. Supports zero value initialization.
+// implementation. Use NewJobHeapPriorityQueue to create one.
 type JobHeapPriorityQueue struct {
 	heap *jobHeapInterface
 }
