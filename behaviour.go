@@ -27,6 +27,14 @@ type JobRegistry interface {
 // A JobPriorityQueue is a queue which orders jobs according to a specific
 // priority. The queue MAY be backed by a heap, but could equally be backed by
 // a B-tree/LSM on disk.
+//
+// Jobs have the following priority:
+//
+// 1. Jobs with RunnableAt. If two jobs have it defined, the one with the
+//    earliest value has higher precedence.
+// 2. Jobs with the lower priority value are returned before higher priority
+//    value.
+// 3. Jobs with lower ID have higher precedence.
 type JobPriorityQueue interface {
 	// Notify the priority queue that the Job's priority might have changed and
 	// that internal datastructures must be updated to reflect that. Returns
