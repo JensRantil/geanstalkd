@@ -10,7 +10,8 @@ var (
 	ErrNoJobDelayed = errors.New("No delayed job ready.")
 )
 
-// Stores jobs. All operations are atomic in terms of storage. No calls are blocking.
+// StorageService stores jobs. All operations are atomic in terms of storage.
+// Calls to all of its functions are non-blocking.
 type StorageService struct {
 	Jobs       JobRegistry
 	ReadyQueue JobPriorityQueue
@@ -29,7 +30,8 @@ func (s *StorageService) Add(j *Job) error {
 	return nil
 }
 
-// Should fail if job doesn't exist.
+// Update updates a preexisting job's metadata. Returns ErrJobMissing if the
+// job could not be found.
 func (s *StorageService) Update(j *Job) error {
 	if err := s.Jobs.Update(j); err != nil {
 		return err
@@ -52,7 +54,8 @@ func (s *StorageService) Read(id JobID) (*Job, error) {
 	return s.Jobs.GetByID(id)
 }
 
-// Return the next ready job. Returns `ErrNoJobReady` if there are no jobs ready.
+// PeekNextDelayed return the next ready job. Returns `ErrNoJobReady` if there
+// are no jobs ready.
 func (s *StorageService) PeekNextDelayed() (*Job, error) {
 	item, err := s.DelayQueue.Peek()
 	if err == ErrEmptyQueue {

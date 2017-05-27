@@ -5,7 +5,8 @@ import (
 	"sync"
 )
 
-// Handles long-polling and locking to orchestrate `StorageService`.
+// LockService handles long-polling and locking to orchestrate
+// `StorageService`.
 type LockService struct {
 	storage *StorageService
 	lock    sync.RWMutex

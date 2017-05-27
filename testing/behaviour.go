@@ -14,7 +14,8 @@ import (
 
 const TestId = 42
 
-// Test that a JobRegistry behaves as a JobRegistry should.
+// TestJobRegistry tests that a JobRegistry behaves as a JobRegistry
+// should.
 func TestJobRegistry(jr geanstalkd.JobRegistry) {
 	testEmptyJobRegistry(jr)
 	Convey("It should behave like a generic JobRegistry", func() {
@@ -121,7 +122,8 @@ var (
 	laterTime = mustParse(time.Kitchen, "4:05PM")
 )
 
-// Test that a JobRegistry behaves as a JobRegistry should.
+// TestJobPriorityQueue tests that a JobRegistry behaves as a
+// JobRegistry should.
 func TestJobPriorityQueue(jpq geanstalkd.JobPriorityQueue) {
 	Convey("It should behave like a generic JobPriorityQueue", func() {
 		testEmptyJobPriorityQueue(jpq)

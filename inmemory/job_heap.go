@@ -74,7 +74,8 @@ func (pq *jobHeapInterface) Pop() interface{} {
 	return item
 }
 
-// implementation. Use NewJobHeapPriorityQueue to create one.
+// JobHeapPriorityQueue is an in-memory geanstalkd.JobPriorityQueue
+// implementation backed by a heap. Use NewJobHeapPriorityQueue to create one.
 type JobHeapPriorityQueue struct {
 	heap *jobHeapInterface
 }

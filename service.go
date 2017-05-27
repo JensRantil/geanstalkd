@@ -6,8 +6,8 @@ type Service interface {
 	io.Closer
 }
 
-// Keeps track of jobs that are reserved and puts them back in READY state if
-// they are not `touch`ed or `delete`d.
+// TTRService keeps track of jobs that are reserved and puts them back in READY
+// state if they are not `touch`ed or `delete`d.
 type TTRService interface {
 	Service
 
@@ -16,7 +16,8 @@ type TTRService interface {
 	Touch(Job)
 }
 
-// Converts delayed jobs to READY state when their delayed has passed.
+// DelayService converts delayed jobs to READY state when their delayed has
+// passed.
 //
 // Two possible implementations of this:
 //  - One in-memory. Probably using a heap or something.

@@ -15,7 +15,7 @@ func (a jobIDJobBTreeItem) Less(b btree.Item) bool {
 	return a.item.ID < b.(jobIDJobBTreeItem).item.ID
 }
 
-// BtreeJobRegistry implements a JobRegistry backed by a BTree.
+// BTreeJobRegistry implements a JobRegistry backed by a BTree.
 type BTreeJobRegistry btree.BTree
 
 func registryToBTree(r *BTreeJobRegistry) *btree.BTree {
