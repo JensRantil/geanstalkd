@@ -30,5 +30,5 @@ func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
 			break
 		}
 	}
-	return line.String(), nil
+	return line.String(), err
 }
