@@ -138,9 +138,9 @@ func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
 	return nil
 }
 
-// Remove removed a job with given ID previously pushed to this queue.
+// RemoveByID removed a job with given ID previously pushed to this queue.
 // geanstalkd.ErrJobMissing if a job with the given ID could not be found.
-func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
+func (h *JobHeapPriorityQueue) RemoveByID(jid geanstalkd.JobID) error {
 	index, ok := h.heap.indexByJobID[jid]
 	if !ok {
 		return geanstalkd.ErrJobMissing

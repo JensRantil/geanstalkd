@@ -145,7 +145,7 @@ func GenericJobPriorityQueueTest(jpq geanstalkd.JobPriorityQueue) {
 				testEmptyJobPriorityQueue(jpq)
 			})
 			Convey("When removing the job", func() {
-				err := jpq.Remove(job.ID)
+				err := jpq.RemoveByID(job.ID)
 				Convey("Then no error should be returned", func() {
 					So(err, ShouldBeNil)
 				})
@@ -153,7 +153,7 @@ func GenericJobPriorityQueueTest(jpq geanstalkd.JobPriorityQueue) {
 			})
 			Convey("When removing a job missing", func() {
 				missingID := job.ID + 1
-				err := jpq.Remove(missingID)
+				err := jpq.RemoveByID(missingID)
 				Convey("Then ErrJobMissing should be returned", func() {
 					So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 				})
@@ -322,7 +322,7 @@ func testEmptyJobPriorityQueue(jpq geanstalkd.JobPriorityQueue) {
 			})
 		})
 		Convey("When removing a job", func() {
-			err := jpq.Remove(testID)
+			err := jpq.RemoveByID(testID)
 			Convey("Then ErrJobMissing should be returned", func() {
 				So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 			})

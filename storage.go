@@ -51,8 +51,8 @@ func (s *StorageService) DeleteByID(id JobID) error {
 	if err := s.Jobs.DeleteByID(id); err != nil {
 		return err
 	}
-	s.ReadyQueue.Remove(id)
-	s.DelayQueue.Remove(id)
+	s.ReadyQueue.RemoveByID(id)
+	s.DelayQueue.RemoveByID(id)
 	return nil
 }
 

@@ -53,10 +53,7 @@ type JobPriorityQueue interface {
 	// exists.
 	Push(*Job) error
 
-	// Remove a Job from the queue with a specific ID.  Returns `ErrJobMissing`
-	// if the job was not in the queue.
-	//
-	// TODO: Rename to `RemoveByID` to make this using same nomenclature as
-	// other functions.
-	Remove(JobID) error
+	// RemoveByID removes a Job from the queue with a specific ID.  Returns
+	// `ErrJobMissing` if the job was not in the queue.
+	RemoveByID(JobID) error
 }
