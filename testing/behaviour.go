@@ -12,7 +12,7 @@ import (
 	"github.com/JensRantil/geanstalkd"
 )
 
-const TestId = 42
+const testID = 42
 
 // TestJobRegistry tests that a JobRegistry behaves as a JobRegistry
 // should.
@@ -20,7 +20,7 @@ func TestJobRegistry(jr geanstalkd.JobRegistry) {
 	testEmptyJobRegistry(jr)
 	Convey("It should behave like a generic JobRegistry", func() {
 		Convey("When adding a single job", func() {
-			job := geanstalkd.Job{ID: TestId}
+			job := geanstalkd.Job{ID: testID}
 			err := jr.Insert(&job)
 			Convey("When adding the same job again", func() {
 				err := jr.Insert(&job)
@@ -56,7 +56,7 @@ func TestJobRegistry(jr geanstalkd.JobRegistry) {
 				So(largestID, ShouldEqual, job.ID)
 			})
 			Convey("When querying for the job", func() {
-				returnedJob, err := jr.GetByID(TestId)
+				returnedJob, err := jr.GetByID(testID)
 				Convey("Then no error should be returned", func() {
 					So(err, ShouldBeNil)
 				})
@@ -101,7 +101,7 @@ func testEmptyJobRegistry(jr geanstalkd.JobRegistry) {
 			})
 		})
 		Convey("When querying for a job", func() {
-			_, err := jr.GetByID(TestId)
+			_, err := jr.GetByID(testID)
 			Convey("Then it should not exist", func() {
 				So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 			})
@@ -152,8 +152,8 @@ func TestJobPriorityQueue(jpq geanstalkd.JobPriorityQueue) {
 				testEmptyJobPriorityQueue(jpq)
 			})
 			Convey("When removing a job missing", func() {
-				missingId := job.ID + 1
-				err := jpq.Remove(missingId)
+				missingID := job.ID + 1
+				err := jpq.Remove(missingID)
 				Convey("Then ErrJobMissing should be returned", func() {
 					So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 				})
@@ -228,11 +228,11 @@ func TestJobPriorityQueue(jpq geanstalkd.JobPriorityQueue) {
 		})
 
 		orderedJobs := []orderedTestJob{
-			{geanstalkd.Job{ID: TestId, RunnableAt: &earlyTime}, "job with early runnable time"},
-			{geanstalkd.Job{ID: TestId - 1, RunnableAt: &laterTime}, "job with later runnable time"},
-			{geanstalkd.Job{ID: TestId - 3}, "regular job"},
-			{geanstalkd.Job{ID: TestId - 2, Priority: 1}, "job with lower priority"},
-			{geanstalkd.Job{ID: TestId, Priority: 1}, "job with higher ID"},
+			{geanstalkd.Job{ID: testID, RunnableAt: &earlyTime}, "job with early runnable time"},
+			{geanstalkd.Job{ID: testID - 1, RunnableAt: &laterTime}, "job with later runnable time"},
+			{geanstalkd.Job{ID: testID - 3}, "regular job"},
+			{geanstalkd.Job{ID: testID - 2, Priority: 1}, "job with lower priority"},
+			{geanstalkd.Job{ID: testID, Priority: 1}, "job with higher ID"},
 		}
 
 		for i, job := range orderedJobs {
@@ -322,13 +322,13 @@ func testEmptyJobPriorityQueue(jpq geanstalkd.JobPriorityQueue) {
 			})
 		})
 		Convey("When removing a job", func() {
-			err := jpq.Remove(TestId)
+			err := jpq.Remove(testID)
 			Convey("Then ErrJobMissing should be returned", func() {
 				So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 			})
 		})
 		Convey("When updating a job", func() {
-			err := jpq.Update(&geanstalkd.Job{ID: TestId})
+			err := jpq.Update(&geanstalkd.Job{ID: testID})
 			Convey("Then ErrJobMissing should be returned", func() {
 				So(err, ShouldEqual, geanstalkd.ErrJobMissing)
 			})
