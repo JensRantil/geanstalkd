@@ -64,7 +64,6 @@ func (s *StorageService) PeekNextDelayed() (*Job, error) {
 	return item, err
 }
 
-// TODO: Add `tube` as parameter.
 func (s *StorageService) PopNextReady() (*Job, error) {
 	item, err := s.DelayQueue.Pop()
 	if err == ErrEmptyQueue {
