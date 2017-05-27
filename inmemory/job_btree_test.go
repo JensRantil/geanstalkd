@@ -14,6 +14,6 @@ func TestBTreeJobRegistry(t *T) {
 
 	Convey("Given a fresh BTreeJobRegistry", t, func() {
 		bt := (*BTreeJobRegistry)(btree.New(btree.DefaultFreeListSize))
-		testing.TestJobRegistry(bt)
+		testing.GenericJobRegistryTest(bt)
 	})
 }

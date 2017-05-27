@@ -15,7 +15,7 @@ func TestJobHeapPriorityQueue(t *T) {
 
 	Convey("Given a fresh JobHeapPriorityQueue", t, func() {
 		jpq := NewJobHeapPriorityQueue()
-		testing.TestJobPriorityQueue(jpq)
+		testing.GenericJobPriorityQueueTest(jpq)
 	})
 }
 
