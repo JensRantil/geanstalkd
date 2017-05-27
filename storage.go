@@ -6,7 +6,9 @@ import (
 )
 
 var (
-	ErrNoJobReady   = errors.New("No job ready.")
+	// ErrNoJobReady is returned when there is no job ready.
+	ErrNoJobReady = errors.New("No job ready.")
+	// ErrNoJobDelayed is returned when there is no delayed job ready.
 	ErrNoJobDelayed = errors.New("No delayed job ready.")
 )
 
@@ -18,6 +20,8 @@ type StorageService struct {
 	DelayQueue JobPriorityQueue
 }
 
+// Add adds a new job to the storage service. Returns ErrJobAlreadyExist if a
+// job with the given ID has already been added.
 func (s *StorageService) Add(j *Job) error {
 	if err := s.Jobs.Insert(j); err != nil {
 		return err
@@ -41,6 +45,8 @@ func (s *StorageService) Update(j *Job) error {
 	return nil
 }
 
+// Delete deletes a job with the given ID. Returns ErrJobMissing if the job
+// could not be found.
 func (s *StorageService) Delete(id JobID) error {
 	if err := s.Jobs.DeleteByID(id); err != nil {
 		return err
@@ -50,6 +56,8 @@ func (s *StorageService) Delete(id JobID) error {
 	return nil
 }
 
+// Read queries a preexisting job by ID. Returns ErrJobMissing if the job could
+// not be found.
 func (s *StorageService) Read(id JobID) (*Job, error) {
 	return s.Jobs.GetByID(id)
 }
@@ -64,6 +72,8 @@ func (s *StorageService) PeekNextDelayed() (*Job, error) {
 	return item, err
 }
 
+// PopNextReady returns the next ready job. Returns ErrNoJobReady if no job is
+// ready.
 func (s *StorageService) PopNextReady() (*Job, error) {
 	item, err := s.ReadyQueue.Pop()
 	if err == ErrEmptyQueue {

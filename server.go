@@ -12,6 +12,8 @@ var (
 	ErrDraining = errors.New("Server is draining. No new jobs can be added.")
 )
 
+// Server is the facade through which all interactions to geanstalk go from the
+// net layer.
 type Server struct {
 	Storage *LockService
 
@@ -21,6 +23,7 @@ type Server struct {
 	lock sync.Mutex
 }
 
+// BuildJob constructs a new job with an ID unique to this Server.
 func (s *Server) BuildJob(pri Priority, at time.Time, ttr time.Duration, jobdata []byte) Job {
 	return Job{
 		ID:         <-s.Ids,
@@ -31,11 +34,13 @@ func (s *Server) BuildJob(pri Priority, at time.Time, ttr time.Duration, jobdata
 	}
 }
 
+// Add adds a new job to this Server.
 func (s *Server) Add(j *Job) error {
 	// TODO: Delegate to `DelayService` if job is delayed.
 	return s.Storage.Add(j)
 }
 
+// Delete deletes a job with the given ID from this Server.
 func (s *Server) Delete(id JobID) error {
 	return s.Storage.Delete(id)
 }

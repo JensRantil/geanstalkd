@@ -13,6 +13,8 @@ type LockService struct {
 	cond    *channelCond
 }
 
+// NewLockService creates a new `LockService` which delegates the actual
+// storage to storage.
 func NewLockService(storage *StorageService) *LockService {
 	ls := &LockService{
 		storage: storage,
@@ -21,6 +23,8 @@ func NewLockService(storage *StorageService) *LockService {
 	return ls
 }
 
+// Add adds a new job and notifies other goroutines that there is a new job
+// available. If the storage returns an error, it is returned here.
 func (ls *LockService) Add(j *Job) error {
 	ls.lock.Lock()
 	defer ls.lock.Unlock()
@@ -34,6 +38,10 @@ func (ls *LockService) Add(j *Job) error {
 	return err
 }
 
+// Poll polls a new job. If there is no job available it waits for one to
+// become available, or until the ctx is Done. Error is either an error
+// returned from the storage's PopNextReady() call, or an error returns from
+// context.
 func (ls *LockService) Poll(ctx context.Context) (*Job, error) {
 	ls.lock.Lock()
 
@@ -54,6 +62,8 @@ func (ls *LockService) Poll(ctx context.Context) (*Job, error) {
 	}
 }
 
+// Delete deletes a job with the given ID. If an error is returned, it has been
+// relayed from the storage.Delete() call.
 func (ls *LockService) Delete(id JobID) error {
 	ls.lock.Lock()
 	defer ls.lock.Unlock()

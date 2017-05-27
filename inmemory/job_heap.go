@@ -80,6 +80,7 @@ type JobHeapPriorityQueue struct {
 	heap *jobHeapInterface
 }
 
+// NewJobHeapPriorityQueue returns a new JobHeapPriorityQueue ready for immediate use.
 func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 	r := &JobHeapPriorityQueue{
 		&jobHeapInterface{
@@ -93,6 +94,7 @@ func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 	return r
 }
 
+// Update modifies a job previously pushed.
 func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
 	index, ok := h.heap.indexByJobID[j.ID]
 	if !ok {
@@ -104,6 +106,9 @@ func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
 
 	return nil
 }
+
+// Pop removes and returns the job with the highest priority.
+// geanstalkd.ErrEmptyQueue is returned if the queue is empty.
 func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
 	if h.heap.Len() == 0 {
 		return nil, geanstalkd.ErrEmptyQueue
@@ -112,6 +117,9 @@ func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
 	delete(h.heap.indexByJobID, job.ID)
 	return job, nil
 }
+
+// Peek returns the job which would be returned if Pop() is called.
+// geanstalkd.ErrEmptyQueue is returned if the queue is empty.
 func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
 	if len(h.heap.jobs) == 0 {
 		return nil, geanstalkd.ErrEmptyQueue
@@ -119,6 +127,9 @@ func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
 	job := h.heap.jobs[0]
 	return job, nil
 }
+
+// Push adds a new job. If a job with the given ID already has been pushed,
+// geanstalkd.ErrJobAlreadyExist is returned.
 func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
 	if h.heap.HasID(j.ID) {
 		return geanstalkd.ErrJobAlreadyExist
@@ -126,6 +137,9 @@ func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
 	heap.Push(h.heap, j)
 	return nil
 }
+
+// Remove removed a job with given ID previously pushed to this queue.
+// geanstalkd.ErrJobMissing if a job with the given ID could not be found.
 func (h *JobHeapPriorityQueue) Remove(jid geanstalkd.JobID) error {
 	index, ok := h.heap.indexByJobID[jid]
 	if !ok {

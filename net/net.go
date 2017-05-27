@@ -18,10 +18,15 @@ import (
 // TODO: All caps.
 const maxLineLength = 1024
 
+// Listener listens for network connections and handles network traffic. See [1] for the exact protocol. All network request-responses are backed by a geanstalkd.Server.
+//
+// [1] https://raw.githubusercontent.com/kr/beanstalkd/master/doc/protocol.txt
 type Listener struct {
 	Server *geanstalkd.Server
 }
 
+// Serve is the network loop that accepts incoming connections and handles
+// request-responses. This function blocks. To close it, mark the ctx as done.
 func (tl *Listener) Serve(ctx context.Context, l net.Listener) {
 	var wg sync.WaitGroup
 	go func() {

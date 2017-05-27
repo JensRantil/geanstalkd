@@ -2,6 +2,7 @@ package geanstalkd
 
 import "io"
 
+// Service is the generic interface for all services that are closeable.
 type Service interface {
 	io.Closer
 }
@@ -29,5 +30,6 @@ type DelayService interface {
 	Service
 }
 
+// StatisticsService keeps track of statistics.
 type StatisticsService interface {
 }
