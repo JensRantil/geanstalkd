@@ -1,4 +1,4 @@
-// Implements all network communication.
+// Package net implements all network communication.
 package net
 
 import (
