@@ -27,7 +27,7 @@ func TestInternalHeap(t *T) {
 			{ID: 40},
 			{ID: 39},
 		},
-		indexByJobId: make(map[geanstalkd.JobID]int),
+		indexByJobID: make(map[geanstalkd.JobID]int),
 	}
 	heap.Init(h)
 
