@@ -45,10 +45,9 @@ func (s *StorageService) Update(j *Job) error {
 	return nil
 }
 
-// Delete deletes a job with the given ID. Returns ErrJobMissing if the job
+// DeleteByID deletes a job with the given ID. Returns ErrJobMissing if the job
 // could not be found.
-func (s *StorageService) Delete(id JobID) error {
-	// TODO: Rename to DeleteByID.
+func (s *StorageService) DeleteByID(id JobID) error {
 	if err := s.Jobs.DeleteByID(id); err != nil {
 		return err
 	}

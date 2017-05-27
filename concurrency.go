@@ -62,13 +62,12 @@ func (ls *LockService) Poll(ctx context.Context) (*Job, error) {
 	}
 }
 
-// Delete deletes a job with the given ID. If an error is returned, it has been
-// relayed from the storage.Delete() call.
-func (ls *LockService) Delete(id JobID) error {
-	// TODO: Rename to DeleteByID to follow common nomenclature.
+// DeleteByID deletes a job with the given ID. If an error is returned, it has
+// been relayed from the storage.Delete() call.
+func (ls *LockService) DeleteByID(id JobID) error {
 	ls.lock.Lock()
 	defer ls.lock.Unlock()
-	return ls.storage.Delete(id)
+	return ls.storage.DeleteByID(id)
 }
 
 // channelCond is very similar to `sync.Cond`, but supports timeouts while waiting.

@@ -40,8 +40,7 @@ func (s *Server) Add(j *Job) error {
 	return s.Storage.Add(j)
 }
 
-// Delete deletes a job with the given ID from this Server.
-func (s *Server) Delete(id JobID) error {
-	// TODO: Rename to DeleteByID to use same nomenclature as other places.
-	return s.Storage.Delete(id)
+// DeleteByID deletes a job with the given ID from this Server.
+func (s *Server) DeleteByID(id JobID) error {
+	return s.Storage.DeleteByID(id)
 }

@@ -250,7 +250,7 @@ func deleteHandler(ch connectionHandler, pipelineID uint, cmdArgs cmdArgs) {
 
 	ch.Conn.Pipeline.EndRequest(pipelineID)
 
-	err := ch.Server.Delete(geanstalkd.JobID(id))
+	err := ch.Server.DeleteByID(geanstalkd.JobID(id))
 
 	ch.Conn.Pipeline.StartResponse(pipelineID)
 
