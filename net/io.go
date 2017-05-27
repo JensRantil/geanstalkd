@@ -8,6 +8,8 @@ import (
 
 var errLineTooLong = errors.New("line too long")
 
+// readCappedLine reads a line from a bufio.Reader, but sets an upper limit to
+// how much can be read to avoid DDoS attacks when reading from network.
 func readCappedLine(r *bufio.Reader, maxBytes int) (string, error) {
 	line := bytes.Buffer{}
 
