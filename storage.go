@@ -65,7 +65,7 @@ func (s *StorageService) PeekNextDelayed() (*Job, error) {
 }
 
 func (s *StorageService) PopNextReady() (*Job, error) {
-	item, err := s.DelayQueue.Pop()
+	item, err := s.ReadyQueue.Pop()
 	if err == ErrEmptyQueue {
 		return item, ErrNoJobDelayed
 	}
