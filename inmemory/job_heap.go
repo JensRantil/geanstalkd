@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"container/heap"
+	"sync"
 
 	"github.com/JensRantil/geanstalkd"
 )
@@ -78,6 +79,7 @@ func (pq *jobHeapInterface) Pop() interface{} {
 // implementation backed by a heap. Use NewJobHeapPriorityQueue to create one.
 type JobHeapPriorityQueue struct {
 	heap *jobHeapInterface
+	lock sync.RWMutex
 }
 
 // NewJobHeapPriorityQueue returns a new JobHeapPriorityQueue ready for immediate use.
@@ -86,6 +88,7 @@ func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 		&jobHeapInterface{
 			indexByJobID: make(map[geanstalkd.JobID]int),
 		},
+		sync.RWMutex{},
 	}
 
 	// Not sure this is needed for an empty heap. Doing it just in case.
@@ -96,6 +99,8 @@ func NewJobHeapPriorityQueue() *JobHeapPriorityQueue {
 
 // Update modifies a job previously pushed.
 func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
 	index, ok := h.heap.indexByJobID[j.ID]
 	if !ok {
 		return geanstalkd.ErrJobMissing
@@ -110,6 +115,9 @@ func (h *JobHeapPriorityQueue) Update(j *geanstalkd.Job) error {
 // Pop removes and returns the job with the highest priority.
 // geanstalkd.ErrEmptyQueue is returned if the queue is empty.
 func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
 	if h.heap.Len() == 0 {
 		return nil, geanstalkd.ErrEmptyQueue
 	}
@@ -121,6 +129,9 @@ func (h *JobHeapPriorityQueue) Pop() (*geanstalkd.Job, error) {
 // Peek returns the job which would be returned if Pop() is called.
 // geanstalkd.ErrEmptyQueue is returned if the queue is empty.
 func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+
 	if len(h.heap.jobs) == 0 {
 		return nil, geanstalkd.ErrEmptyQueue
 	}
@@ -131,6 +142,9 @@ func (h *JobHeapPriorityQueue) Peek() (*geanstalkd.Job, error) {
 // Push adds a new job. If a job with the given ID already has been pushed,
 // geanstalkd.ErrJobAlreadyExist is returned.
 func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
 	if h.heap.HasID(j.ID) {
 		return geanstalkd.ErrJobAlreadyExist
 	}
@@ -141,6 +155,9 @@ func (h *JobHeapPriorityQueue) Push(j *geanstalkd.Job) error {
 // RemoveByID removed a job with given ID previously pushed to this queue.
 // geanstalkd.ErrJobMissing if a job with the given ID could not be found.
 func (h *JobHeapPriorityQueue) RemoveByID(jid geanstalkd.JobID) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
 	index, ok := h.heap.indexByJobID[jid]
 	if !ok {
 		return geanstalkd.ErrJobMissing

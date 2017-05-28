@@ -26,7 +26,7 @@ type JobRegistry interface {
 
 // A JobPriorityQueue is a queue which orders jobs according to a specific
 // priority. The queue MAY be backed by a heap, but could equally be backed by
-// a B-tree/LSM on disk.
+// a B-tree/LSM on disk. Must be thread-safe.
 //
 // Jobs have the following priority:
 //
