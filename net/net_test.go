@@ -81,7 +81,7 @@ func (iot inputOutputTest) ExpectingOutput(t *T, expected string) {
 	srv := &geanstalkd.Server{
 		Storage: geanstalkd.NewLockService(
 			&geanstalkd.StorageService{
-				Jobs:       (*inmemory.BTreeJobRegistry)(btree.New(DefaultBTreeDegree)),
+				Jobs:       inmemory.NewBTreeJobRegistry(btree.New(DefaultBTreeDegree)),
 				ReadyQueue: inmemory.NewJobHeapPriorityQueue(),
 				DelayQueue: inmemory.NewJobHeapPriorityQueue(),
 			},

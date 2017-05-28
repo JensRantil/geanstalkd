@@ -1,6 +1,8 @@
 package inmemory
 
 import (
+	"sync"
+
 	"github.com/google/btree"
 
 	"github.com/JensRantil/geanstalkd"
@@ -16,10 +18,16 @@ func (a jobIDJobBTreeItem) Less(b btree.Item) bool {
 }
 
 // BTreeJobRegistry implements a JobRegistry backed by a BTree.
-type BTreeJobRegistry btree.BTree
+type BTreeJobRegistry struct {
+	btree *btree.BTree
+	lock  sync.RWMutex
+}
 
-func registryToBTree(r *BTreeJobRegistry) *btree.BTree {
-	return (*btree.BTree)(r)
+// NewBTreeJobRegistry returns a new BTreeJobRegistry backed by btree.
+func NewBTreeJobRegistry(btree *btree.BTree) *BTreeJobRegistry {
+	return &BTreeJobRegistry{
+		btree: btree,
+	}
 }
 
 // Insert inserts a new job. It returns geanstalkd.ErrJobAlreadyExist if a job
@@ -27,11 +35,14 @@ func registryToBTree(r *BTreeJobRegistry) *btree.BTree {
 func (i *BTreeJobRegistry) Insert(j *geanstalkd.Job) error {
 	item := jobIDJobBTreeItem{j}
 
-	if registryToBTree(i).Has(item) {
+	i.lock.Lock()
+	defer i.lock.Unlock()
+
+	if i.btree.Has(item) {
 		return geanstalkd.ErrJobAlreadyExist
 	}
 
-	registryToBTree(i).ReplaceOrInsert(item)
+	i.btree.ReplaceOrInsert(item)
 	return nil
 }
 
@@ -40,11 +51,14 @@ func (i *BTreeJobRegistry) Insert(j *geanstalkd.Job) error {
 func (i *BTreeJobRegistry) Update(j *geanstalkd.Job) error {
 	item := jobIDJobBTreeItem{j}
 
-	if !registryToBTree(i).Has(item) {
+	i.lock.Lock()
+	defer i.lock.Unlock()
+
+	if !i.btree.Has(item) {
 		return geanstalkd.ErrJobMissing
 	}
 
-	registryToBTree(i).ReplaceOrInsert(item)
+	i.btree.ReplaceOrInsert(item)
 	return nil
 }
 
@@ -56,7 +70,10 @@ func itemToJob(item btree.Item) *geanstalkd.Job {
 // geanstalkd.ErrJobMissing error if the job could not be found.
 func (i *BTreeJobRegistry) GetByID(id geanstalkd.JobID) (*geanstalkd.Job, error) {
 	key := jobIDJobBTreeItem{&geanstalkd.Job{ID: id}}
-	item := registryToBTree(i).Get(key)
+
+	i.lock.RLock()
+	item := i.btree.Get(key)
+	i.lock.RUnlock()
 	if item == nil {
 		return nil, geanstalkd.ErrJobMissing
 	}
@@ -68,7 +85,11 @@ func (i *BTreeJobRegistry) GetByID(id geanstalkd.JobID) (*geanstalkd.Job, error)
 // geanstalkd.ErrJobMissing if the job could not be found.
 func (i *BTreeJobRegistry) DeleteByID(id geanstalkd.JobID) error {
 	key := jobIDJobBTreeItem{&geanstalkd.Job{ID: id}}
-	if item := registryToBTree(i).Delete(key); item == nil {
+
+	i.lock.Lock()
+	defer i.lock.Unlock()
+
+	if item := i.btree.Delete(key); item == nil {
 		return geanstalkd.ErrJobMissing
 	}
 	return nil
@@ -77,7 +98,10 @@ func (i *BTreeJobRegistry) DeleteByID(id geanstalkd.JobID) error {
 // GetLargestID returns the largest JobID for the jobs stored in this
 // BTreeJobRegistry.
 func (i *BTreeJobRegistry) GetLargestID() (geanstalkd.JobID, error) {
-	max := registryToBTree(i).Max()
+	i.lock.RLock()
+	max := i.btree.Max()
+	i.lock.RUnlock()
+
 	if max == nil {
 		return 0, geanstalkd.ErrEmptyRegistry
 	}
