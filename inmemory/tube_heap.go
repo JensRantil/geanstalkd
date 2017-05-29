@@ -47,29 +47,7 @@ func (pq *tubeHeapInterface) Less(i, j int) bool {
 		// Unhandled error.
 		panic(err)
 	}
-
-	// TODO: Migrate the code below to separate function. It is identical to
-	// code found in job_heap.go.
-
-	if a, b := left.RunnableAt, right.RunnableAt; a != nil || b != nil {
-		if a != nil && b != nil {
-			return a.Before(*b)
-		} else if a != nil {
-			return true
-		} else /*if b != nil*/ {
-			return false
-		}
-	}
-
-	if left.Priority < right.Priority {
-		return true
-	}
-
-	if left.ID < right.ID {
-		return true
-	}
-
-	return false
+	return geanstalkd.Less(*left, *right)
 }
 
 func (pq *tubeHeapInterface) Swap(i, j int) {

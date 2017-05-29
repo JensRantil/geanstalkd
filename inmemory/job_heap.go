@@ -28,26 +28,7 @@ func (pq *jobHeapInterface) Len() int { return len(pq.jobs) }
 func (pq *jobHeapInterface) Less(i, j int) bool {
 	left := pq.jobs[i]
 	right := pq.jobs[j]
-
-	if a, b := left.RunnableAt, right.RunnableAt; a != nil || b != nil {
-		if a != nil && b != nil {
-			return a.Before(*b)
-		} else if a != nil {
-			return true
-		} else /*if b != nil*/ {
-			return false
-		}
-	}
-
-	if left.Priority < right.Priority {
-		return true
-	}
-
-	if left.ID < right.ID {
-		return true
-	}
-
-	return false
+	return geanstalkd.Less(*left, *right)
 }
 
 func (pq *jobHeapInterface) Swap(i, j int) {
