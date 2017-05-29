@@ -13,6 +13,9 @@ type JobID uint64
 // values.
 type Priority uint64
 
+// Tube is a queue.
+type Tube string
+
 // Job is the structure containing all the metadata for a job.
 type Job struct {
 	ID         JobID

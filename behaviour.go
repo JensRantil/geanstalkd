@@ -54,6 +54,30 @@ type JobPriorityQueue interface {
 	Push(*Job) error
 
 	// RemoveByID removes a Job from the queue with a specific ID.  Returns
-	// `ErrJobMissing` if the job was not in the queue.
+	// `ErrQueueMissing` if the job was not in the queue.
 	RemoveByID(JobID) error
+}
+
+// TubePriorityQueue is a queue which orders `JobPriorityQueue`s according to a
+// specific priority. The queue MAY be backed by a heap, but could equally be
+// backed by a B-tree/LSM on disk. Must be thread-safe.
+//
+// Tubes' priority is based on their Peek() return value and uses the same
+// ordering defined for JobPriorityQueue.
+type TubePriorityQueue interface {
+	// Peek returns the JobPriorityQueue with highest priority. Returns
+	// ErrEmptyQueue if the queue is epty.
+	Peek() (JobPriorityQueue, error)
+
+	// Push adds a new JobPriorityQueue to the queue.
+	Push(name Tube, queue JobPriorityQueue) error
+
+	// FixByTube notifies the TubePriorityQueue the tube might have been
+	// updated. Must be called everytime the tube changes. Returns
+	// ErrQueueMissing if the tube couldn't be found.
+	FixByTube(Tube) error
+
+	// RemoveByTube returns the JobPriorityQueue for the equivalent tube.
+	// Returns ErrQueueMissing if the tube couldn't be found.
+	RemoveByTube(Tube) error
 }
